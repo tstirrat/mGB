@@ -57,12 +57,13 @@ _asmUpdatePu1PbWheelReset$::
 	ld	A,(hl)
 	ld	B,A
 
-	ld	A,#<_freq
-    add	A,B
-    add	A,B
-	ld	E,A
-    ld	A,#>_freq
-	ld	D,A
+	ld  A,B
+	add A,A
+	add A,#<_freq
+	ld  E,A
+	adc #>_freq
+	sub E
+	ld  D,A
 
 	ld  A,(DE)
 	ld	(#0xFF13),A
@@ -135,15 +136,13 @@ _asmUpdatePu2PbWheelReset$::
 
 	ld	hl, #_noteStatus + 3
 	ld	A,(hl)
-	ld	B,A
 
-
-	ld	A,#<_freq
-    add	A,B
-    add	A,B
-	ld	E,A
-    ld	A,#>_freq
-	ld	D,A
+	add A,A
+	add A,#<_freq
+	ld  E,A
+	adc #>_freq
+	sub E
+	ld  D,A
 
 	ld  A,(DE)
 	ld	(#0xFF18),A
@@ -238,14 +237,13 @@ _asmUpdateWavPbWheelReset$::
 
 	ld	hl, #_noteStatus + 5
 	ld	A,(hl)
-	ld	B,A
 
-	ld	A,#<_freq
-    add	A,B
-    add	A,B
-	ld	E,A
-    ld	A,#>_freq
-	ld	D,A
+	add A,A
+	add A,#<_freq
+	ld  E,A
+	adc #>_freq
+	sub E
+	ld  D,A
 
 	ld  A,(DE)
 
@@ -319,9 +317,10 @@ _asmUpdateNoiPbWheelReset$::
 	ld	B,A
 
 	ld	A,#<_noiFreq
-    add	A,B
+	add	A,B
 	ld	E,A
-    ld	A,#>_noiFreq
+	adc	A,#>_noiFreq
+	sub	E
 	ld	D,A
 
 	ld  A,(DE)
@@ -358,7 +357,7 @@ _asmPlayNotePu1::
 
 	cp #0x00
 	jr	nz,_asmPlayNotePu1OnSet$
-	jr	_asmPlayNotePu1Off$
+	jp	_asmPlayNotePu1Off$
 
 _asmPlayNotePu1OnSet$::
 	ld	A, (#0xFF12)
@@ -403,12 +402,13 @@ _asmPlayNotePu1On$::
 	ld	hl, #_noteStatus + 1
 	ld	(hl),B
 
-	ld	A,#<_freq
-    add	A,B
-    add	A,B
-	ld	E,A
-    ld	A,#>_freq
-	ld	D,A
+	ld  A,B
+	add A,A
+	add A,#<_freq
+	ld  E,A
+	adc #>_freq
+	sub E
+	ld  D,A
 
 	ld  A,(DE)
 	ld	(#0xFF13),A
@@ -496,7 +496,7 @@ _asmPlayNotePu2$::
 
 	cp #0x00
 	jr	nz,_asmPlayNotePu2OnSet$
-	jr	_asmPlayNotePu2Off$
+	jp	_asmPlayNotePu2Off$
 
 _asmPlayNotePu2OnSet$::
 	ld	A, (#0xFF17)
@@ -539,12 +539,13 @@ _asmPlayNotePu2On$::
 	ld	hl, #_noteStatus + 3
 	ld	(hl),B
 
-	ld	A,#<_freq
-    add	A,B
-    add	A,B
-	ld	E,A
-    ld	A,#>_freq
-	ld	D,A
+	ld  A,B
+	add A,A
+	add A,#<_freq
+	ld  E,A
+	adc #>_freq
+	sub E
+	ld  D,A
 
 	ld  A,(DE)
 	ld	(#0xFF18),A
@@ -656,12 +657,13 @@ _asmPlayNoteWavVolM$::
 ret
 
 _asmPlayNoteWavSet$::
-	ld	A,#<_freq
-    add	A,B
-    add	A,B
-	ld	E,A
-    ld	A,#>_freq
-	ld	D,A
+	ld  A,B
+	add A,A
+	add A,#<_freq
+	ld  E,A
+	adc #>_freq
+	sub E
+	ld  D,A
 
 	ld  A,(DE)
 
@@ -783,9 +785,10 @@ _asmPlayNoteNoiOn$::
 	ld	(#0xFF21),A
 
 	ld	A,#<_noiFreq
-    add	A,B
+	add	A,B
 	ld	E,A
-    ld	A,#>_noiFreq
+	adc	A,#>_noiFreq
+	sub	E
 	ld	D,A
 
 	ld  A,(DE)
