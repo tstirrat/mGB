@@ -1,5 +1,3 @@
-#include "mGB.h"
-
 void clearParameterLocks(void) {
   for (j = 0; j != 24; j++)
     parameterLock[j] = 0;

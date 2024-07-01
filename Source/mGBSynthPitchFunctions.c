@@ -1,5 +1,3 @@
-#include "mGB.h"
-
 void setPitchBendFrequencyOffset(UBYTE synth) {
   UWORD freqRange;
   UWORD f = freq[noteStatus[(synth << 1) + 0x01]];

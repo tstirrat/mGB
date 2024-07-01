@@ -1,5 +1,3 @@
-#include "mGB.h"
-
 void saveDataSet(UBYTE synth) {
   ENABLE_RAM_MBC1;
   x = (synth + 24U);

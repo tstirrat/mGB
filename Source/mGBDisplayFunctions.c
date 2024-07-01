@@ -1,5 +1,3 @@
-#include "mGB.h"
-
 void printversion(void) { set_bkg_tiles(1, 16, 10, 1, versionnumber); }
 
 void printhelp(void) {
