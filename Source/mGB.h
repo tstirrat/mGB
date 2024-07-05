@@ -1,27 +1,42 @@
+#pragma once
+
+#include <gbdk/platform.h>
+#include <types.h>
 
 extern UBYTE saveData[513U];
 //extern UBYTE wavData[512U];
 
-extern UBYTE serialBuffer[256];
-extern UBYTE serialBufferPosition;
-extern UBYTE serialBufferReadPosition;
+UBYTE serialBuffer[256];
+UBYTE serialBufferPosition;
+UBYTE serialBufferReadPosition;
 
+// MIDI status
 UBYTE statusByte;
+// MIDI address (e.g. note/CC control)
 UBYTE addressByte;
+// MIDI value (e.g. velocity/value)
 UBYTE valueByte;
-UBYTE captureDataType;
 UBYTE capturedAddress;
 UBYTE updateDisplaySynthCounter;
 
-void asmMain();
-void asmUpdateSerial();
-void asmLoadWav(UBYTE ost);
-void asmUpdateMidiBuffer();
-void asmUpdatePu1();
-void asmUpdatePu2();
-void asmUpdateWav();
-void asmUpdateNoi();
-void asmPlayNotePu1();
+void asmLoadWav(UBYTE offset) OLDCALL;
+void updateMidiBuffer(void);
+void asmUpdatePu1(void);
+void asmUpdatePu2(void);
+void asmUpdateWav(void);
+void asmUpdateNoi(void);
+void asmPlayNotePu1(void);
+void asmEventMidiPB(void);
+void asmEventMidiCC(void);
+void asmEventMidiNote(void);
+void asmEventMidiNoteOff(void);
+void asmEventMidiPC(void);
+
+inline void gameMain(void);
+void mainScreen(void);
+void updateVibratoPosition(UBYTE synth);
+void updateSynth(UBYTE synth);
+void updateValueSynth(UBYTE p);
 
 #define PU1 0
 #define PU2 1
