@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "emulicious-debugger",
+      "request": "launch",
+      "name": "Debug in Emulicious",
+      "program": "${workspaceFolder}/Source/out/mGB.gb",
+      "port": 58870,
+      "stopOnEntry": false,
+      "preLaunchTask": "make-debug",
+      "additionalSrcFolders": "Source/obj"
+    }
+  ]
+}

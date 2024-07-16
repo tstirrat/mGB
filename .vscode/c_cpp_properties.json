@@ -1,0 +1,13 @@
+{
+  "configurations": [
+    {
+      "name": "Mac",
+      "includePath": ["${workspaceFolder}/**"],
+      "defines": ["__TARGET_gb=1", "__PORT_sm83=1"],
+      "compilerPath": "",
+      "cStandard": "c11",
+      "intelliSenseMode": "${default}"
+    }
+  ],
+  "version": 4
+}

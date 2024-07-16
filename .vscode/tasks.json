@@ -1,0 +1,62 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "make-debug",
+      "type": "shell",
+      "command": "make clean && make DEBUG=1",
+      "options": {
+        "cwd": "Source/"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "make",
+      "type": "shell",
+      "command": "make clean && make",
+      "options": {
+        "cwd": "Source/"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "make-release",
+      "type": "shell",
+      "command": "make clean && make RELEASE=1",
+      "options": {
+        "cwd": "Source/"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "install",
+      "detail": "Installs the rom onto a cartridge using ems-flasher (bank 2)",
+      "type": "shell",
+      "command": "ems-flasher --write --verbose --bank 2 out/mGB.gb",
+      "options": {
+        "cwd": "Source/"
+      },
+      "dependsOn": "make-release",
+      "problemMatcher": []
+    },
+    {
+      "label": "romusage",
+      "type": "shell",
+      "command": "gbdk/bin/romusage",
+      "args": ["Source/out/mGB.noi", "-sRe", "-sRp", "-g"],
+      "dependsOn": "make-debug",
+      "problemMatcher": []
+    },
+    {
+      "label": "run-sameboy",
+      "type": "shell",
+      "command": "/Applications/SameBoy.app/Contents/MacOS/SameBoy",
+      "args": ["out/mGB.gb", "~/Downloads/lsdj9_3_3-arduinoboy/lsdj.gb"],
+      "options": {
+        "cwd": "Source/"
+      },
+      "dependsOn": "make-debug",
+      "problemMatcher": []
+    }
+  ]
+}
