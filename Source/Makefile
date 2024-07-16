@@ -1,16 +1,18 @@
-# If you move this project you can change the directory 
+# If you move this project you can change the directory
 # to match your GBDK root directory (ex: GBDK_HOME = "C:/GBDK/"
 ifndef GBDK_HOME
-	GBDK_HOME = ../gbdk
+  GBDK_HOME = ../gbdk
 endif
 
 PROJECTNAME = mGB
 
-LCC = $(GBDK_HOME)/bin/lcc 
+MAKEFLAGS += --no-builtin-rules
+
+LCC = $(GBDK_HOME)/bin/lcc
 
 LCCFLAGS += -msm83:gb # GB/GBC
 # LCCFLAGS += -v # verbose
-# LCCFLAGS += -autobank 
+# LCCFLAGS += -autobank
 
 ifdef DEBUG
 LCCFLAGS += -debug -v
@@ -44,28 +46,59 @@ endif
 # LCCFLAGS += -Wm-yS # Convert .noi file named like input file to .sym
 LCCFLAGS += -Wm-yc # GBC compatible
 LCCFLAGS += -Wm-yn"$(PROJECTNAME)" # cartridge name
-LCCFLAGS += -Wm-yt3 # MBC type = ROM+MBC1+RAM+BATT 
+LCCFLAGS += -Wm-yt3 # MBC type = ROM+MBC1+RAM+BATT
 LCCFLAGS += -Wm-ya1 # number of ram banks: -ya 1
 
+LCCFLAGS += -Wf-MMD
 
-OBJ=obj
-OUT=out
+OBJDIR      = obj
+OUTDIR      = out
 
-build:
-	mkdir -p $(OBJ)
-	mkdir -p $(OUT)
-	
-	# mostly so you can see the .asm
-	$(LCC) $(LCCFLAGS) -c -o $(OBJ)/mGB.rel mGB.c
 
-  # SRAM bank 0
-	$(LCC) $(LCCFLAGS) -Wf-ba0 -c -o $(OBJ)/mgb_save.rel mgb_save.c
-	$(LCC) $(LCCFLAGS) -o $(OUT)/$(PROJECTNAME).gb $(OBJ)/mGB.rel $(OBJ)/mgb_save.rel *.s
+BIN	        = $(OUTDIR)/$(PROJECTNAME).gb
 
-compile.bat: Makefile
-	@echo "REM Automatically generated from Makefile" > compile.bat
-	@make -sn | sed y/\\//\\\\/ | sed s/mkdir\ \-p/mkdir/ | grep -v make >> compile.bat
+MKDIRS      = $(OUTDIR) $(OBJDIR)/io $(OBJDIR)/screen $(OBJDIR)/synth $(OBJDIR)/io/sram
 
+C_SOURCES    = $(wildcard *.c)
+C_SOURCES    += $(wildcard **/*.c)
+
+SRAM_BANK0  = $(wildcard io/sram/*.b0.c)
+
+ASM_SOURCES  = $(wildcard **/*.s)
+
+
+OBJS        = $(C_SOURCES:%.c=$(OBJDIR)/%.o)
+OBJS        += $(ASM_SOURCES:%.s=$(OBJDIR)/%.o)
+OBJS        += $(SRAM_BANK0:%.b0.c=$(OBJDIR)/%.b0.o)
+
+
+# Builds all targets sequentially
+all: $(BIN)
+
+# Dependencies - for better incremental builds
+DEPS = $(OBJS:%.o=%.d)
+-include $(DEPS)
+
+# sram banks
+$(OBJDIR)/%.b0.o: %.b0.c
+	$(LCC) $(LCCFLAGS) -Wf-ba0 -c -o $@ $<
+
+# Compile .c files to .o object files
+$(OBJDIR)/%.o: %.c
+	$(LCC) $(LCCFLAGS) -c -o $@ $<
+
+# Compile .s assembly files to .o object files
+$(OBJDIR)/%.o: %.s
+	$(LCC) $(LCCFLAGS) -c -o $@ $<
+
+# Link the compiled object files into a .gb ROM file
+$(BIN):	makedirs $(OBJS)
+	$(LCC) $(LCCFLAGS) -o $(BIN) $(OBJS)
+
+.PHONY: makedirs
+makedirs:
+	mkdir -p $(MKDIRS)
+
+.PHONY: clean
 clean:
-	rm -rf $(OBJ)
-	rm -rf $(OUT)
+	rm -rf $(OBJDIR) $(OUTDIR)

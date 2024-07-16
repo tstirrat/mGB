@@ -2,11 +2,12 @@
   "configurations": [
     {
       "name": "Mac",
-      "includePath": ["${workspaceFolder}/**"],
+      "includePath": ["${workspaceFolder}/gbdk/include"],
       "defines": ["__TARGET_gb=1", "__PORT_sm83=1"],
-      "compilerPath": "",
+      "compilerPath": "${workspaceFolder}/gbdk/bin/lcc",
       "cStandard": "c11",
-      "intelliSenseMode": "${default}"
+      "intelliSenseMode": "${default}",
+      "browse": { "limitSymbolsToIncludedHeaders": true }
     }
   ],
   "version": 4

@@ -1,6 +1,9 @@
-#include "mGB.h"
+#include "sram.h"
+#include "../mGB.h"
+#include "../synth/data.h"
+#include <gbdk/platform.h>
 
-void saveDataSet(UBYTE synth) {
+void saveDataSet(uint8_t synth) {
   ENABLE_RAM_MBC1;
   x = (synth + 24U);
   x = dataSet[x] * 8;
@@ -34,7 +37,7 @@ void saveDataSet(UBYTE synth) {
   DISABLE_RAM_MBC1;
 }
 
-void loadDataSet(UBYTE synth) {
+void loadDataSet(uint8_t synth) {
   ENABLE_RAM_MBC1;
   x = dataSet[(synth + 24U)] * 8U;
   i = 0;
@@ -72,33 +75,9 @@ void loadDataSet(UBYTE synth) {
   DISABLE_RAM_MBC1;
 }
 
-void snapRecall(void) {
-  if (cursorRowMain == 0x08U) {
-    for (l = 0; l < 4; l++) {
-      if (cursorEnable[l]) {
-        if (!recallMode) {
-          saveDataSet(l);
-        } else {
-          loadDataSet(l);
-          updateSynth(l);
-        }
-      }
-    }
-  } else {
-    if (!recallMode) {
-      for (j = 0; j != 24; j++)
-        dataSetSnap[j] = dataSet[j];
-    } else {
-      for (j = 0; j != 24; j++)
-        dataSet[j] = dataSetSnap[j];
-      updateDisplay();
-    }
-  }
-}
-
 void checkMemory(void) {
   ENABLE_RAM_MBC1;
-  if (saveData[512] != 0xF7) {
+  if (saveData[512] != SRAM_INITIALIZED) {
     for (x = 0; x != 128; x += 8) {
       l = 0;
       for (i = 0; i < 7; i++) {
@@ -121,7 +100,7 @@ void checkMemory(void) {
         l++;
       }
     }
-    saveData[512] = 0xF7;
+    saveData[512] = SRAM_INITIALIZED;
   }
   DISABLE_RAM_MBC1;
 

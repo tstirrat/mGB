@@ -1,41 +1,30 @@
 #include "mGB.h"
+#include "io/midi.h"
+#include "io/sram.h"
+#include "screen/main.h"
+#include "screen/splash.h"
+#include "screen/utils.h"
+#include "synth/common.h"
+#include "synth/noi.h"
+#include "synth/pulse.h"
+#include "synth/wav.h"
 
-void printbyte(UBYTE v1, UBYTE v2, UBYTE v3) {
-  bkg[0] = (v1 >> 4) + 1;
-  bkg[1] = (0x0F & v1) + 1;
-
-  bkg[2] = 0;
-
-  bkg[3] = (v2 >> 4) + 1;
-  bkg[4] = (0x0F & v2) + 1;
-
-  bkg[5] = 0;
-
-  bkg[6] = (v3 >> 4) + 1;
-  bkg[7] = (0x0F & v3) + 1;
-
-  bkg[8] = 0;
-  set_bkg_tiles(1, 16, 10, 1, bkg);
-}
-
-#include "mGBDisplayFunctions.c"
-#include "mGBMemoryFunctions.c"
-#include "mGBMidiFunctions.c"
-#include "mGBSynthCommonFunctions.c"
-#include "mGBSynthPitchFunctions.c"
-#include "mGBUserFunctions.c"
-#include "serial.c"
+uint8_t i;
+uint8_t x;
+uint8_t j;
+uint8_t l;
+bool systemIdle = true;
 
 void setSoundDefaults(void) {
-  rAUDENA = 0x8FU; // Turn sound on
-  rAUDVOL = 0x77U; // Turn on Pulses outs
+  rAUDENA = AUDENA_ON; // Turn sound on
+  rAUDVOL = AUDVOL_VOL_LEFT(7U) | AUDVOL_VOL_RIGHT(7U);
 
-  setOutputPan(0U, 64U);
-  setOutputPan(1U, 64U);
-  setOutputPan(2U, 64U);
-  setOutputPan(3U, 64U);
+  setOutputPan(PU1, 64U);
+  setOutputPan(PU2, 64U);
+  setOutputPan(WAV, 64U);
+  setOutputPan(NOI, 64U);
 
-  asmLoadWav(wavDataOffset); // tRIANGLE
+  loadWav(wavDataOffset); // tRIANGLE
   rAUD3LEVEL = 0x00U;
 
   rAUD4GO = 0x80U;
@@ -45,7 +34,7 @@ void setSoundDefaults(void) {
 void testSynths(void) {
   addressByte = 0x40;
   valueByte = 0x7F;
-  asmPlayNotePu1();
+  playNotePu1();
 }
 
 void main(void) {
@@ -54,13 +43,14 @@ void main(void) {
     cpu_fast();
     checkMemory();
     displaySetup();
+    initMainScreen();
     setSoundDefaults();
     add_TIM(updateSynths);
 
-    loadDataSet(0x00U);
-    loadDataSet(0x01U);
-    loadDataSet(0x02U);
-    loadDataSet(0x03U);
+    loadDataSet(PU1);
+    loadDataSet(PU2);
+    loadDataSet(WAV);
+    loadDataSet(NOI);
   }
 
   /* Set TMA to divide clock by 0x100 */
@@ -68,11 +58,7 @@ void main(void) {
   /* Set clock to 262144 Hertz */
   rTAC = TACF_START | TACF_262KHZ;
   /* Handle VBL and TIM interrupts */
-
   set_interrupts(VBL_IFLAG | TIM_IFLAG | SIO_IFLAG);
-
-  SHOW_BKG;
-  SHOW_SPRITES;
 
   showSplashScreen();
   delay(2000);
@@ -94,30 +80,18 @@ inline void gameMain(void) {
       getPad();
 
     if (systemIdle)
-      asmUpdatePu1();
+      updatePu1();
 
     if (systemIdle)
-      asmUpdatePu2();
+      updatePu2();
 
     if (systemIdle)
-      asmUpdateWav();
+      updateWav();
 
     if (systemIdle)
-      asmUpdateNoi();
+      updateNoi();
 
     if (systemIdle)
       mainScreen();
   }
-}
-
-void mainScreen(void) {
-  if (currentScreen == 0) {
-    return;
-  };
-
-  updateDisplaySynthCounter = (updateDisplaySynthCounter + 1) & 3U;
-
-  updateDisplaySynth();
-  // printbyte(statusByte, addressByte, valueByte);
-  setPlayMarker();
 }

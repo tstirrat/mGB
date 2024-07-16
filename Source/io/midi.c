@@ -1,15 +1,12 @@
-#include "mGB.h"
+#include "midi.h"
+#include "../mGB.h"
+#include "midi_asm.h"
+#include "serial.h"
 
-#define MIDI_STATUS_BIT 0x80
-#define MIDI_STATUS_NOTE_ON 0x09
-#define MIDI_STATUS_NOTE_OFF 0x08
-#define MIDI_STATUS_AT 0x0A
-#define MIDI_STATUS_CC 0x0B
-#define MIDI_STATUS_PC 0x0C
-#define MIDI_STATUS_AT_MONO 0x0D
-#define MIDI_STATUS_PB 0x0E
-
-#define MIDI_STATUS_SYSTEM 0xF0
+uint8_t statusByte;
+uint8_t addressByte;
+uint8_t valueByte;
+uint8_t capturedAddress;
 
 void updateMidiBuffer(void) {
   if (serialBufferReadPosition == serialBufferPosition) {
@@ -18,7 +15,7 @@ void updateMidiBuffer(void) {
 
   serialBufferReadPosition++; // unsigned overflow from 255 -> 0 is automatic.
 
-  UBYTE byte = serialBuffer[serialBufferReadPosition];
+  uint8_t byte = serialBuffer[serialBufferReadPosition];
 
   // STATUS BYTE
   if (byte & MIDI_STATUS_BIT) {

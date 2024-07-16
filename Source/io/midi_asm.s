@@ -1,4 +1,27 @@
-.module mGBASMMidiFunctions
+  .module midi_asm
+	.optsdcc -msm83
+
+  .globl _addressByte
+  .globl _dataSet
+  .globl _noiEnv
+  .globl _noiSus
+  .globl _parameterLock
+  .globl _pbRange
+  .globl _pbWheelIn
+  .globl _playNoteNoi
+  .globl _playNotePoly
+  .globl _playNotePu1
+  .globl _playNotePu2
+  .globl _playNoteWav
+  .globl _pu1State
+  .globl _pu2State
+  .globl _statusByte
+  .globl _valueByte
+  .globl _vibratoDepth
+  .globl _vibratoSpeed
+  .globl _wavDataOffset
+  .globl _wavSus
+  .globl _wavSweepSpeed
 
 _popReturn$::
 ret
@@ -13,15 +36,15 @@ _asmEventMidiNote::
 	ld  a,(#_statusByte)
 	AND	#0x0F
 	cp	#0x00
-		jp z,_asmPlayNotePu1;
+		jp z,_playNotePu1
 	cp	#0x01
-		jp z,_asmPlayNotePu2$;
+		jp z,_playNotePu2
 	cp	#0x02
-		jp z,_asmPlayNoteWav$;
+		jp z,_playNoteWav
 	cp	#0x03
-		jp z,_asmPlayNoteNoi$;
+		jp z,_playNoteNoi
 	cp	#0x04
-		jp z,_asmPlayNotePoly$;
+		jp z,_playNotePoly
 ret
 
 _asmEventMidiCC::
@@ -232,7 +255,7 @@ _asmPu1Env$::
 	RRCA
 	AND #0x0F
 
-	ld	hl,#_pu1Env
+	ld	hl,#_pu1State + 0
 	ld	(hl),A
 
 	ld	de,#_dataSet + 2
@@ -369,14 +392,14 @@ _asmPu1SusOn$::
 	ld	A,#0x01
 	ld	de,#_dataSet + 5
     ld	(de),A
-	ld	hl,#_pu1Sus
+	ld	hl,#_pu1State + 1
     ld	(hl),A
 ret
 _asmPu1SusOff$::
 	ld	A,#0x00
 	ld	de,#_dataSet + 5
     ld	(de),A
-	ld	hl,#_pu1Sus
+	ld	hl,#_pu1State + 1
     ld	(hl),A
 
 	ld	hl,#_noteStatus + 0
@@ -393,7 +416,7 @@ ret
 _asmPu1Nf$::
 	ld	A,#0x00
 	ld (#0xFF12),A
-	ld	hl,#_pu1Sus
+	ld	hl,#_pu1State + 1
     ld	(hl),A
 	ld	de,#_dataSet + 5
     ld	(de),A
@@ -463,7 +486,7 @@ _asmPu2Env$::
 	RRCA
 	AND #0x0F
 
-	ld	hl,#_pu2Env
+	ld	hl,#_pu2State + 0
 	ld	(hl),A
 
 	ld	de,#_dataSet + 9
@@ -583,14 +606,14 @@ _asmPu2SusOn$::
 	ld	A,#0x01
 	ld	de,#_dataSet + 11
     ld	(de),A
-	ld	hl,#_pu2Sus
+	ld	hl,#_pu2State + 1
     ld	(hl),A
 ret
 _asmPu2SusOff$::
 	ld	A,#0x00
 	ld	de,#_dataSet + 11
     ld	(de),A
-	ld	hl,#_pu2Sus
+	ld	hl,#_pu2State + 1
     ld	(hl),A
 
 	ld	hl,#_noteStatus + 5
@@ -607,7 +630,7 @@ ret
 _asmPu2Nf$::
 	ld	A,#0x00
 	ld (#0xFF17),A
-	ld	hl,#_pu2Sus
+	ld	hl,#_pu2State + 1
     ld	(hl),A
 	ld	de,#_dataSet + 11
     ld	(de),A

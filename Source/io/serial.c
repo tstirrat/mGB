@@ -1,5 +1,10 @@
-#include "mGB.h"
+#include "serial.h"
+#include "../mGB.h"
 #include <gb/isr.h>
+
+uint8_t serialBuffer[256];
+uint8_t serialBufferPosition;
+uint8_t serialBufferReadPosition;
 
 void serial_isr(void) CRITICAL INTERRUPT {
   serialBufferPosition++; // unsigned overflow from 255 -> 0 is automatic.

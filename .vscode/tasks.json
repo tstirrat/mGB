@@ -29,6 +29,15 @@
       "problemMatcher": []
     },
     {
+      "label": "make-clean",
+      "type": "shell",
+      "command": "make clean",
+      "options": {
+        "cwd": "Source/"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "install",
       "detail": "Installs the rom onto a cartridge using ems-flasher (bank 2)",
       "type": "shell",
