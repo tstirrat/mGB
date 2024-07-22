@@ -1,0 +1,4 @@
+pillow ~= 10.4.0
+pytest ~= 8.3.0
+pytest-describe ~= 2.2.0
+pytest-sugar ~= 1.0.0

@@ -1,5 +1,7 @@
 .vscode/settings.json
+.venv/
 gbdk/
 Source/obj
 Source/out
 mgb.gb
+bgb
