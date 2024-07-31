@@ -10,14 +10,16 @@
 #define SPRITE_ARRT 0x80
 #define SPRITE_ARRT_START 26
 #define SPRITE_ARRL_START 27
-#define SPRITE_PUFREQ_LOW 1
-
-void cls(void);
-void hideCursor(void);
-void displaySetup(void);
 
 extern uint8_t bkg[20];
-extern uint8_t currentScreen;
+
+typedef enum Screen {
+  SCREEN_NONE = 0,
+  SCREEN_SPLASH = 1,
+  SCREEN_MAIN = 2,
+} Screen;
+
+extern Screen currentScreen;
 
 // TODO: generate from png
 extern const uint8_t data_barrow[16];
@@ -30,3 +32,10 @@ extern const uint8_t data_font[1472];
 
 extern const uint16_t bgpalette[4];
 extern const uint16_t spritepalette[8];
+
+void cls(void);
+void hideCursor(void);
+void displaySetup(void);
+void toggleScreen(void);
+void renderCurrentScreen(void);
+void showScreen(Screen screen);

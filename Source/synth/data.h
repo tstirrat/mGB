@@ -3,6 +3,8 @@
 #include <gbdk/platform.h>
 #include <stdbool.h>
 
+#define NUM_PARAMS 24
+
 typedef enum Parameter {
   PU1_Transpose = 0,
   PU1_Shape = 1,
@@ -36,6 +38,8 @@ typedef enum Parameter {
   PU2_Slot = 25,
   WAV_Slot = 26,
   NOI_Slot = 27,
+
+  PARAM_NONE = 255U,
 } Parameter;
 
 extern uint8_t dataSet[28];

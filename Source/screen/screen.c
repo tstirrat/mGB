@@ -1,8 +1,11 @@
-#include "utils.h"
+#include "screen.h"
 #include "../mGB.h"
+#include "main.h"
+#include "splash.h"
 
 uint8_t bkg[20] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-uint8_t currentScreen;
+
+Screen currentScreen;
 
 // TODO: generate from png
 const uint8_t data_barrow[16] = {0x00, 0x00, 0xE7, 0xE7, 0x7E, 0x7E,
@@ -189,4 +192,34 @@ void displaySetup(void) {
 
   SHOW_BKG;
   SHOW_SPRITES;
+}
+
+void toggleScreen(void) {
+  // EMU_printf("toggleScreen\n");
+  if (currentScreen == SCREEN_NONE) {
+    DISPLAY_ON;
+    // TODO: restore to last screen
+    showScreen(SCREEN_MAIN);
+  } else {
+    currentScreen = SCREEN_NONE;
+    DISPLAY_OFF;
+  }
+}
+
+void showScreen(Screen screen) {
+  switch (screen) {
+  case SCREEN_SPLASH:
+    showSplashScreen();
+    break;
+  case SCREEN_MAIN:
+    showMainScreen();
+    break;
+  }
+}
+
+void renderCurrentScreen(void) {
+  if (currentScreen == SCREEN_MAIN) {
+
+    renderMainScreen();
+  }
 }

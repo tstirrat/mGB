@@ -52,3 +52,4 @@ void updateSynths(void);
 void setOutputPanBySynth(uint8_t synth, uint8_t value);
 void setOutputPan(uint8_t synth, uint8_t value);
 void setPitchBendFrequencyOffset(uint8_t synth);
+void stopAllSynths(void);

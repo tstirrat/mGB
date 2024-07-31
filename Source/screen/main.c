@@ -1,16 +1,15 @@
 
 #include "main.h"
+#include "../io/pad.h"
 #include "../io/sram.h"
 #include "../mGB.h"
 #include "../synth/common.h"
 #include "../synth/data.h"
 #include "../synth/pulse.h"
 #include "../synth/wav.h"
-#include "utils.h"
+#include "screen.h"
 
 bool recallMode;
-uint8_t lastPadRead;
-bool joyState[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 // v 1.3.3
 const uint8_t versionnumber[10] = {32, 81, 2, 81, 4, 81, 4, 0, 0, 0};
 
@@ -40,6 +39,12 @@ const uint8_t SCREEN_YSPACE = 8;
 const uint8_t SCREEN_PSTARTX = 24;
 const uint8_t SCREEN_PSTARTY = 41;
 
+const uint8_t NUM_COLS = 4;
+const uint8_t LAST_COL = 3;
+
+const uint8_t NUM_ROWS = 9;
+const uint8_t LAST_ROW = 8;
+
 bool cursorEnable[4] = {1, 0, 0, 0};
 uint8_t cursorColumn;
 uint8_t cursorRow[4];
@@ -49,17 +54,16 @@ uint8_t cursorStartX[4];
 uint8_t cursorStartY[4];
 uint8_t cursorColumnLast;
 uint8_t cursorRowMain;
-bool shiftSelect;
 
 uint8_t updateDisplaySynthCounter;
 
-const uint8_t tableCursorLookup[4][9] = {
-    {0, 1, 2, 3, 4, 5, 6, 255, 24},
-    {7, 8, 9, 255, 10, 11, 12, 255, 25},
-    {13, 14, 15, 16, 17, 18, 19, 255, 26},
-    {20, 255, 21, 255, 255, 22, 23, 255, 27}};
+const uint8_t cursorToParam[4][9] = {
+    {0, 1, 2, 3, 4, 5, 6, PARAM_NONE, 24},
+    {7, 8, 9, PARAM_NONE, 10, 11, 12, PARAM_NONE, 25},
+    {13, 14, 15, 16, 17, 18, 19, PARAM_NONE, 26},
+    {20, PARAM_NONE, 21, PARAM_NONE, PARAM_NONE, 22, 23, PARAM_NONE, 27}};
 
-const uint8_t tableData[28][3] = {
+const uint8_t paramToLoc[28][3] = {
     {3, 5, 6},   {3, 6, 4},   {3, 7, 16},   {3, 8, 255},
     {3, 9, 49},  {3, 10, 2},  {3, 11, 4},
 
@@ -95,7 +99,7 @@ const uint8_t markerMapTiles[4][4] = {{0x03, 0x02, 0x00, 0x5B},
                                       {0x0F, 0x02, 0x00, 0x5B}};
 
 void initMainScreen(void) {
-  for (j = 0; j != 4; j++) {
+  for (j = 0; j != NUM_COLS; j++) {
     cursorBigStartX[j] = SCREEN_XO + SCREEN_PSTARTX + (j * SCREEN_XSPACE) - 1;
     cursorBigStartY[j] = SCREEN_YO + SCREEN_PSTARTY - 8;
     cursorStartX[j] = SCREEN_XO + SCREEN_PSTARTX + (j * SCREEN_XSPACE) - 8;
@@ -105,8 +109,9 @@ void initMainScreen(void) {
 }
 
 void showMainScreen(void) {
+  // EMU_printf("showMainScreen\n");
   cls();
-  currentScreen = 1;
+  currentScreen = SCREEN_MAIN;
   bkg[0] = 66;
   set_bkg_tiles(3, 3, 1, 1, bkg);
   bkg[0] = 67;
@@ -118,28 +123,15 @@ void showMainScreen(void) {
 
   for (j = 0; j != 28; j++) {
     bkg[0] = bkg[1] = 1;
-    set_bkg_tiles(tableData[j][0], tableData[j][1], 2, 1, bkg);
+    set_bkg_tiles(paramToLoc[j][0], paramToLoc[j][1], 2, 1, bkg);
   }
 
   updateDisplay();
   showCursor();
 }
 
-void toggleScreen(void) {
-  if (currentScreen == 0) {
-    DISPLAY_ON;
-    showMainScreen();
-  } else {
-    currentScreen = 0;
-    DISPLAY_OFF;
-  }
-}
-
-void mainScreen(void) {
-  if (currentScreen == 0) {
-    return;
-  };
-
+void renderMainScreen(void) {
+  // EMU_printf("renderMainScreen\n");
   updateDisplaySynthCounter = (updateDisplaySynthCounter + 1) & 3U;
 
   updateDisplaySynth();
@@ -154,80 +146,80 @@ void printhelp(void) {
   set_bkg_tiles(1, 16, 18, 1, helpdata[j]);
 }
 
-void updateDisplayValue(uint8_t p, uint8_t v) {
+void updateDisplayValue(Parameter p, uint8_t v) {
   bkg[1] = 0;
   switch (p) {
-  case 0U:
-  case 7U:
-  case 13U:
-  case 20U:
-    set_bkg_tiles(tableData[p][0], tableData[p][1], 2, 1, octmap[v]);
+  case PU1_Transpose:
+  case PU2_Transpose:
+  case WAV_Transpose:
+  case NOI_Transpose:
+    set_bkg_tiles(paramToLoc[p][0], paramToLoc[p][1], 2, 1, octmap[v]);
     break;
-  case 1U:
-  case 8U:
+  case PU1_Shape:
+  case PU2_Shape:
     bkg[0] = 44 + v;
-    set_bkg_tiles(tableData[p][0], tableData[p][1], 2, 1, bkg);
+    set_bkg_tiles(paramToLoc[p][0], paramToLoc[p][1], 2, 1, bkg);
     break;
-  case 2U:
-  case 9U:
-  case 21U:
+  case PU1_Envelope:
+  case PU2_Envelope:
+  case NOI_Env:
     if (!v) {
       bkg[0] = 83;
-      set_bkg_tiles(tableData[p][0], tableData[p][1], 2, 1, bkg);
+      set_bkg_tiles(paramToLoc[p][0], paramToLoc[p][1], 2, 1, bkg);
     } else {
       bkg[0] = 48 + v;
-      set_bkg_tiles(tableData[p][0], tableData[p][1], 2, 1, bkg);
+      set_bkg_tiles(paramToLoc[p][0], paramToLoc[p][1], 2, 1, bkg);
     }
     break;
-  case 4U:
-  case 10U:
-  case 17U:
+  case PU1_PBRange:
+  case PU2_PBRange:
+  case WAV_PBRange:
     bkg[0] = 1 + (v >> 4);
     bkg[1] = 1 + (0x0F & v);
-    set_bkg_tiles(tableData[p][0], tableData[p][1], 2, 1, bkg);
+    set_bkg_tiles(paramToLoc[p][0], paramToLoc[p][1], 2, 1, bkg);
     break;
-  case 5U:
-  case 11U:
-  case 18U:
-  case 22U:
-    set_bkg_tiles(tableData[p][0], tableData[p][1], 2, 1, susmap[v]);
+  case PU1_Sustain:
+  case PU2_Sustain:
+  case WAV_Sustain:
+  case NOI_Sustain:
+    set_bkg_tiles(paramToLoc[p][0], paramToLoc[p][1], 2, 1, susmap[v]);
     break;
-  case 6U:
-  case 12U:
-  case 19U:
-  case 23U:
-    set_bkg_tiles(tableData[p][0], tableData[p][1], 2, 1, panmap[v]);
+  case PU1_Pan:
+  case PU2_Pan:
+  case WAV_Pan:
+  case NOI_Pan:
+    set_bkg_tiles(paramToLoc[p][0], paramToLoc[p][1], 2, 1, panmap[v]);
     break;
-  case 14U:
+  case WAV_Shape:
     if (v > 7U) {
       bkg[1] = v - 7;
       bkg[0] = 48;
-      set_bkg_tiles(tableData[p][0], tableData[p][1], 2, 1, bkg);
+      set_bkg_tiles(paramToLoc[p][0], paramToLoc[p][1], 2, 1, bkg);
     } else {
       bkg[0] = 39 + v;
-      set_bkg_tiles(tableData[p][0], tableData[p][1], 2, 1, bkg);
+      set_bkg_tiles(paramToLoc[p][0], paramToLoc[p][1], 2, 1, bkg);
     }
     break;
-  case 3U:
+  case PU1_Sweep:
     bkg[0] = 1 + (v >> 4);
     bkg[1] = 1 + (0x0F & v);
-    set_bkg_tiles(tableData[p][0], tableData[p][1], 2, 1, bkg);
+    set_bkg_tiles(paramToLoc[p][0], paramToLoc[p][1], 2, 1, bkg);
     break;
-  case 15U:
+  case WAV_Offset:
     bkg[0] = 1 + (v >> 4);
     bkg[1] = 1 + (0x0F & v);
-    set_bkg_tiles(tableData[p][0], tableData[p][1], 2, 1, bkg);
+    set_bkg_tiles(paramToLoc[p][0], paramToLoc[p][1], 2, 1, bkg);
     break;
-  case 16U:
+  case WAV_Sweep:
     bkg[0] = 1 + v;
-    set_bkg_tiles(tableData[p][0], tableData[p][1], 2, 1, bkg);
+    set_bkg_tiles(paramToLoc[p][0], paramToLoc[p][1], 2, 1, bkg);
     break;
-  case 24U:
-  case 25U:
-  case 26U:
-  case 27U:
+  case PU1_Slot:
+  case PU2_Slot:
+  case WAV_Slot:
+  case NOI_Slot:
     bkg[0] = 1 + (0x0F & v);
-    set_bkg_tiles(tableData[p][0], tableData[p][1], 2, 1, bkg);
+    set_bkg_tiles(paramToLoc[p][0], paramToLoc[p][1], 2, 1, bkg);
     break;
   default:
     break;
@@ -236,39 +228,41 @@ void updateDisplayValue(uint8_t p, uint8_t v) {
 
 void updateDisplaySynth(void) {
   // printbyte(serialBufferPosition,serialBufferReadPosition,serialBuffer[serialBufferPosition]);
-  for (i = 0; i != 0x09U; i++) {
-    if (tableCursorLookup[updateDisplaySynthCounter][i] != 0xFFU) {
-      updateDisplayValue(
-          tableCursorLookup[updateDisplaySynthCounter][i],
-          dataSet[tableCursorLookup[updateDisplaySynthCounter][i]]);
+  // EMU_printf("updateDislpaySynthCounter = %d\n", updateDisplaySynthCounter);
+
+  for (i = 0; i != NUM_ROWS; i++) {
+    Parameter p = cursorToParam[updateDisplaySynthCounter][i];
+    if (p != PARAM_NONE) {
+      updateDisplayValue(p, dataSet[p]);
     }
   }
 }
 
 void updateDisplay(void) {
-  uint8_t x = 0;
-  for (j = 0; j != 0x04U; j++) {
-    for (i = 0; i != 0x09U; i++) {
-      if (tableCursorLookup[j][i] != 0xFFU) {
-        // updateValue(tableCursorLookup[j][i],dataSet[tableCursorLookup[j][i]]);
-        updateDisplayValue(tableCursorLookup[j][i],
-                           dataSet[tableCursorLookup[j][i]]);
+  for (j = 0; j != NUM_COLS; j++) {
+    for (i = 0; i != NUM_ROWS; i++) {
+      const Parameter p = cursorToParam[j][i];
+      if (p != PARAM_NONE) {
+        // updateValue(p, dataSet[p]);
+        updateDisplayValue(p, dataSet[p]);
 
         // TODO: why is this needed here?
-        // updateValueSynth(tableCursorLookup[j][i]);
+        // updateValueSynth(p);
       }
     }
   }
 }
 
 void setCursor(void) {
+  const bool shiftSelect = (joyState & J_SELECT) > 0;
+
   if (cursorColumnLast != cursorColumn) {
     if (cursorColumn > 0xF0U)
-      cursorColumn = 0x03U;
-    if (cursorColumn > 0x03U)
-      cursorColumn = 0U;
+      cursorColumn = LAST_COL;
+    if (cursorColumn > LAST_COL)
+      cursorColumn = 0;
     cursorEnable[cursorColumn] = 1U;
-    if (!joyState[6]) {
+    if (!shiftSelect) {
       cursorEnable[cursorColumnLast] = 0U;
     }
 
@@ -276,15 +270,15 @@ void setCursor(void) {
     cursorColumnLast = cursorColumn;
   }
 
-  for (j = 0; j != 4; j++) {
-    if (shiftSelect && !joyState[6] && cursorColumn != j) {
+  for (j = 0; j != NUM_COLS; j++) {
+    if (!shiftSelect && cursorColumn != j) {
       cursorEnable[j] = 0;
     }
     if (cursorEnable[j]) {
       if (cursorRow[j] > 0xF0U)
-        cursorRow[j] = 0x08U;
-      if (cursorRow[j] > 0x08U)
-        cursorRow[j] = 0U;
+        cursorRow[j] = LAST_ROW;
+      if (cursorRow[j] > LAST_ROW)
+        cursorRow[j] = 0;
       move_sprite(SPRITE_ARRT_START, cursorBigStartX[cursorColumn],
                   cursorBigStartY[0]);
       move_sprite(j + SPRITE_ARRL_START, cursorStartX[j],
@@ -293,16 +287,11 @@ void setCursor(void) {
         cursorRowMain = cursorRow[j];
     }
   }
-  for (j = 0; j != 4; j++) {
+  for (j = 0; j != NUM_COLS; j++) {
     if (!cursorEnable[j]) {
       cursorRow[j] = cursorRowMain;
       move_sprite(j + SPRITE_ARRL_START, 0, 0);
     }
-  }
-  if (!joyState[6]) {
-    shiftSelect = 0;
-  } else {
-    shiftSelect = 1;
   }
   printhelp();
 }
@@ -310,7 +299,7 @@ void setCursor(void) {
 void showCursor(void) { setCursor(); }
 
 void setPlayMarker(void) {
-  for (j = 0; j != 4; j++) {
+  for (j = 0; j != NUM_COLS; j++) {
     bkg[0] = markerMapTiles[j][(2U + noteStatus[j].active)];
     set_bkg_tiles(markerMapTiles[j][0], markerMapTiles[j][1U], 1U, 1U, bkg);
   }
@@ -322,168 +311,115 @@ void clearParameterLocks(void) {
 }
 
 void setDataValue(void) {
-  bool up = 0;
-  uint8_t inc = 1;
+  bool increasing = 0;
+  uint8_t delta = 1;
   systemIdle = 0;
 
   j = 0;
   if (i & J_UP) {
     j = 1;
-    up = 1;
-    inc = 16;
+    increasing = 1;
+    delta = 16;
   } else if (i & J_DOWN) {
     j = 1;
-    inc = 16;
+    delta = 16;
   } else if (i & J_LEFT) {
     j = 1;
   } else if (i & J_RIGHT) {
-    up = 1;
+    increasing = 1;
     j = 1;
   }
   if (j) {
-    for (j = 0; j != 4; j++) {
-      if (cursorEnable[j] && tableCursorLookup[j][cursorRow[j]] != 0xFFU) {
-        x = tableCursorLookup[j][cursorRow[j]];
-        l = tableData[x][2];
-        switch (x) {
-        case 6:
-        case 12:
-        case 19:
-        case 23:
+    for (j = 0; j != NUM_COLS; j++) {
+      const Parameter p = cursorToParam[j][cursorRow[j]];
+      if (cursorEnable[j] && p != PARAM_NONE) {
+        const uint8_t limit = paramToLoc[p][2];
+        switch (p) {
+        case PU1_Pan:
+        case PU2_Pan:
+        case WAV_Pan:
+        case NOI_Pan:
           if (i & J_DOWN) {
-            dataSet[x] = 0;
+            dataSet[p] = 0;
           } else if (i & J_UP) {
-            dataSet[x] = 3;
+            dataSet[p] = 3;
           } else if (i & J_LEFT) {
-            dataSet[x] = 2;
+            dataSet[p] = 2;
           } else if (i & J_RIGHT) {
-            dataSet[x] = 1;
+            dataSet[p] = 1;
           }
           break;
-        case 0:
-        case 7:
-        case 13:
-        case 20:
-          inc = 1;
+        case PU1_Transpose:
+        case PU2_Transpose:
+        case WAV_Transpose:
+        case NOI_Transpose:
+          delta = 1;
         default:
-          if (up) {
-            dataSet[x] += inc;
-            if (dataSet[x] >= l)
-              dataSet[x] = (l - 1);
-          } else if (dataSet[x]) {
-            if (dataSet[x] > inc) {
-              dataSet[x] -= inc;
+          if (increasing) {
+            dataSet[p] += delta;
+            if (dataSet[p] >= limit)
+              dataSet[p] = (limit - 1);
+          } else if (dataSet[p]) {
+            if (dataSet[p] > delta) {
+              dataSet[p] -= delta;
             } else {
-              dataSet[x] = 0;
+              dataSet[p] = 0;
             }
           }
+          // EMU_printf("setDataValue dataSet[%d]: %d\n", p, dataSet[p]);
         }
-        parameterLock[x] = 1;
-        updateValueSynth(x);
+        if (p < NUM_PARAMS) {
+          parameterLock[p] = 1;
+        }
+        updateValueSynth(p);
       }
     }
   }
 }
 
-// TODO: move the main pad handler out, split into screen level handlers
-void getPad(void) {
-  i = joypad();
-  if (i != lastPadRead) {
-    lastPadRead = i;
-    if (i) {
-      if ((i & J_A) && !joyState[0]) {
-        joyState[0] = 1;
-        if (i & J_SELECT) {
-          toggleScreen();
-        } else {
-          setDataValue();
-        }
-        return;
-      } else if (joyState[0]) {
-        joyState[0] = 0;
-        setDataValue();
-        return;
-      }
-      if ((i & J_B) && !joyState[1]) {
-        joyState[1] = 1;
-        if (i & J_SELECT) {
-          recallMode = 0;
-        } else {
-          recallMode = 1;
-        }
-        snapRecall();
-        return;
-      } else if (joyState[1]) {
-        joyState[1] = 0;
-        return;
-      }
-      if ((i & J_UP) && !joyState[2]) {
-        joyState[2] = 1;
-        cursorRow[cursorColumn]--;
-        setCursor();
-        return;
-      } else if (joyState[2]) {
-        joyState[2] = 0;
-        return;
-      }
-      if ((i & J_RIGHT) && !joyState[5]) {
-        joyState[5] = 1;
-        cursorColumn++;
-        setCursor();
-        return;
-      } else if (joyState[5]) {
-        joyState[5] = 0;
-        return;
-      }
-      if ((i & J_DOWN) && !joyState[3]) {
-        joyState[3] = 1;
-        cursorRow[cursorColumn]++;
-        setCursor();
-        return;
-      } else if (joyState[3]) {
-        joyState[3] = 0;
-        return;
-      }
-      if ((i & J_LEFT) && !joyState[4]) {
-        joyState[4] = 1;
-        cursorColumn--;
-        setCursor();
-        return;
-      } else if (joyState[4]) {
-        joyState[4] = 0;
-        return;
-      }
-      if ((i & J_SELECT) && !joyState[6]) {
-        joyState[6] = 1;
-        return;
-      } else if (joyState[6]) {
-        joyState[6] = 0;
-        return;
-      }
-      if ((i & J_START) && !joyState[7]) {
-        joyState[7] = 1;
-        rAUD1ENV = 0;
-        rAUD2ENV = 0;
-        rAUD3LEVEL = 0;
-        rAUD4ENV = 0;
-        pbWheelIn[0] = pbWheelIn[1] = pbWheelIn[2] = pbWheelIn[3] =
-            PBWHEEL_CENTER;
-        pu1State.sus = pu2State.sus = wavSus = 0;
+void getPadMainScreen(void) {
+  if (joyState == 0) {
+    clearParameterLocks();
+    return;
+  }
 
-        return;
-      } else if (joyState[7]) {
-        joyState[7] = 0;
-        return;
-      }
+  if (joyState & J_A) {
+    setDataValue();
+    return;
+  }
+
+  if (joyState & J_B) {
+    if (joyState & J_SELECT) {
+      recallMode = 0;
     } else {
-      clearParameterLocks();
-      for (j = 0; j != 8; j++) {
-        if (joyState[j]) {
-          joyState[j] = 0;
-        }
-      }
-      return;
+      recallMode = 1;
     }
+    snapRecall();
+    return;
+  }
+
+  if (joyState & J_UP) {
+    cursorRow[cursorColumn]--;
+    setCursor();
+    return;
+  }
+
+  if (joyState & J_RIGHT) {
+    cursorColumn++;
+    setCursor();
+    return;
+  }
+
+  if (joyState & J_DOWN) {
+    cursorRow[cursorColumn]++;
+    setCursor();
+    return;
+  }
+
+  if (joyState & J_LEFT) {
+    cursorColumn--;
+    setCursor();
+    return;
   }
 }
 
@@ -506,8 +442,8 @@ void printbyte(uint8_t v1, uint8_t v2, uint8_t v3) {
 }
 
 void snapRecall(void) {
-  if (cursorRowMain == 0x08U) {
-    for (l = 0; l < 4; l++) {
+  if (cursorRowMain == LAST_ROW) {
+    for (l = 0; l < NUM_COLS; l++) {
       if (cursorEnable[l]) {
         if (!recallMode) {
           saveDataSet(l);
@@ -530,12 +466,13 @@ void snapRecall(void) {
 }
 
 void updateSynth(uint8_t synth) {
-  for (i = 0; i != 0x09U; i++) {
-    if (tableCursorLookup[synth][i] != 0xFFU) {
+  Parameter p;
+  for (i = 0; i != NUM_ROWS; i++) {
+    p = cursorToParam[synth][i];
+    if (p != PARAM_NONE) {
       // TODO: is this noop assign needed?
-      dataSet[tableCursorLookup[synth][i]] =
-          dataSet[tableCursorLookup[synth][i]];
-      updateValueSynth(tableCursorLookup[synth][i]);
+      // dataSet[p] = dataSet[p];
+      updateValueSynth(p);
     }
   }
 }

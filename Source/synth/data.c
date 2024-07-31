@@ -44,6 +44,7 @@ uint8_t dataSetSnap[28];
 bool parameterLock[24];
 
 void updateValueSynth(Parameter p) {
+  // EMU_printf("updateValueSynth(%d)\n", p);
   switch (p) {
   case PU1_Transpose:
     pu1State.octave = dataSet[p];

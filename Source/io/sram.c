@@ -1,9 +1,12 @@
 #include "sram.h"
 #include "../mGB.h"
+#include "../screen/main.h"
 #include "../synth/data.h"
 #include <gbdk/platform.h>
 
 void saveDataSet(uint8_t synth) {
+  // EMU_printf("saveDataSet(synth %d)\n", synth);
+
   ENABLE_RAM_MBC1;
   x = (synth + 24U);
   x = dataSet[x] * 8;
@@ -38,6 +41,8 @@ void saveDataSet(uint8_t synth) {
 }
 
 void loadDataSet(uint8_t synth) {
+  // EMU_printf("loadDataSet(synth %d)\n", synth);
+
   ENABLE_RAM_MBC1;
   x = dataSet[(synth + 24U)] * 8U;
   i = 0;
@@ -77,6 +82,12 @@ void loadDataSet(uint8_t synth) {
 
 void checkMemory(void) {
   ENABLE_RAM_MBC1;
+
+  // fixes some SRAM Bugs
+  SWITCH_ROM(1);
+  SWITCH_RAM(0);
+  // end fix
+
   if (saveData[512] != SRAM_INITIALIZED) {
     for (x = 0; x != 128; x += 8) {
       l = 0;

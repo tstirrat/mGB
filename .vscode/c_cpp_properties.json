@@ -4,7 +4,7 @@
       "name": "Mac",
       "includePath": ["${workspaceFolder}/gbdk/include"],
       "defines": ["__TARGET_gb=1", "__PORT_sm83=1"],
-      "compilerPath": "${workspaceFolder}/gbdk/bin/lcc",
+      "compilerPath": "/usr/bin/clang",
       "cStandard": "c11",
       "intelliSenseMode": "${default}",
       "browse": { "limitSymbolsToIncludedHeaders": true }

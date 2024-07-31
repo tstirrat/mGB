@@ -1,9 +1,10 @@
 #include "mGB.h"
 #include "io/midi.h"
+#include "io/pad.h"
 #include "io/sram.h"
 #include "screen/main.h"
+#include "screen/screen.h"
 #include "screen/splash.h"
-#include "screen/utils.h"
 #include "synth/common.h"
 #include "synth/noi.h"
 #include "synth/pulse.h"
@@ -60,10 +61,10 @@ void main(void) {
   /* Handle VBL and TIM interrupts */
   set_interrupts(VBL_IFLAG | TIM_IFLAG | SIO_IFLAG);
 
-  showSplashScreen();
+  showScreen(SCREEN_SPLASH);
   delay(2000);
 
-  showMainScreen();
+  showScreen(SCREEN_MAIN);
   printversion();
   // testSynths();
   gameMain();
@@ -92,6 +93,6 @@ inline void gameMain(void) {
       updateNoi();
 
     if (systemIdle)
-      mainScreen();
+      renderCurrentScreen();
   }
 }

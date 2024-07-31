@@ -1,6 +1,7 @@
 #include "common.h"
 #include "../io/midi.h"
 #include "../mGB.h"
+#include "pulse.h"
 #include "wav.h"
 
 const uint16_t freq[72] = {
@@ -112,8 +113,6 @@ void updateVibratoPosition(uint8_t synth) {
 }
 
 void updateSynths(void) {
-  enable_interrupts();
-
   if (vibratoDepth[PU1])
     updateVibratoPosition(PU1);
   if (vibratoDepth[PU2])
@@ -160,4 +159,14 @@ void setOutputPan(uint8_t synth, uint8_t value) {
   }
   outputSwitch[synth] = value;
   setOutputSwitch();
+}
+
+void stopAllSynths(void) {
+  rAUD1ENV = 0;
+  rAUD2ENV = 0;
+  rAUD3LEVEL = 0;
+  rAUD4ENV = 0;
+  pbWheelIn[PU1] = pbWheelIn[PU2] = pbWheelIn[WAV] = pbWheelIn[NOI] =
+      PBWHEEL_CENTER;
+  pu1State.sus = pu2State.sus = wavSus = false;
 }
