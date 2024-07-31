@@ -9,7 +9,6 @@
 #include "../synth/wav.h"
 #include "screen.h"
 
-bool recallMode;
 // v 1.3.3
 const uint8_t versionnumber[10] = {32, 81, 2, 81, 4, 81, 4, 0, 0, 0};
 
@@ -261,9 +260,9 @@ void setCursor(void) {
       cursorColumn = LAST_COL;
     if (cursorColumn > LAST_COL)
       cursorColumn = 0;
-    cursorEnable[cursorColumn] = 1U;
+    cursorEnable[cursorColumn] = true;
     if (!shiftSelect) {
-      cursorEnable[cursorColumnLast] = 0U;
+      cursorEnable[cursorColumnLast] = false;
     }
 
     // cursorRow[cursorColumn] = cursorRowMain;
@@ -272,7 +271,7 @@ void setCursor(void) {
 
   for (j = 0; j != NUM_COLS; j++) {
     if (!shiftSelect && cursorColumn != j) {
-      cursorEnable[j] = 0;
+      cursorEnable[j] = false;
     }
     if (cursorEnable[j]) {
       if (cursorRow[j] > 0xF0U)
@@ -307,18 +306,18 @@ void setPlayMarker(void) {
 
 void clearParameterLocks(void) {
   for (j = 0; j != 24; j++)
-    parameterLock[j] = 0;
+    parameterLock[j] = false;
 }
 
 void setDataValue(void) {
-  bool increasing = 0;
+  bool increasing = false;
   uint8_t delta = 1;
-  systemIdle = 0;
+  systemIdle = false;
 
   j = 0;
   if (i & J_UP) {
     j = 1;
-    increasing = 1;
+    increasing = true;
     delta = 16;
   } else if (i & J_DOWN) {
     j = 1;
@@ -326,7 +325,7 @@ void setDataValue(void) {
   } else if (i & J_LEFT) {
     j = 1;
   } else if (i & J_RIGHT) {
-    increasing = 1;
+    increasing = true;
     j = 1;
   }
   if (j) {
@@ -369,7 +368,7 @@ void setDataValue(void) {
           // EMU_printf("setDataValue dataSet[%d]: %d\n", p, dataSet[p]);
         }
         if (p < NUM_PARAMS) {
-          parameterLock[p] = 1;
+          parameterLock[p] = true;
         }
         updateValueSynth(p);
       }
@@ -390,11 +389,10 @@ void getPadMainScreen(void) {
 
   if (joyState & J_B) {
     if (joyState & J_SELECT) {
-      recallMode = 0;
+      snapRecall(RECALL_SAVE);
     } else {
-      recallMode = 1;
+      snapRecall(RECALL_LOAD);
     }
-    snapRecall();
     return;
   }
 
@@ -441,11 +439,11 @@ void printbyte(uint8_t v1, uint8_t v2, uint8_t v3) {
   set_bkg_tiles(1, 16, 10, 1, bkg);
 }
 
-void snapRecall(void) {
+void snapRecall(RecallMode mode) {
   if (cursorRowMain == LAST_ROW) {
     for (l = 0; l < NUM_COLS; l++) {
       if (cursorEnable[l]) {
-        if (!recallMode) {
+        if (mode == RECALL_SAVE) {
           saveDataSet(l);
         } else {
           loadDataSet(l);
@@ -454,7 +452,7 @@ void snapRecall(void) {
       }
     }
   } else {
-    if (!recallMode) {
+    if (mode == RECALL_SAVE) {
       for (j = 0; j != 24; j++)
         dataSetSnap[j] = dataSet[j];
     } else {

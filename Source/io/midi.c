@@ -23,23 +23,23 @@ void updateMidiBuffer(void) {
       return;
     }
     statusByte = byte;
-    capturedAddress = 0;
-    systemIdle = 0;
+    capturedAddress = false;
+    systemIdle = false;
     return;
   }
 
   // 2ND BYTE (note/CC control)
   if (!capturedAddress) {
-    capturedAddress = 1;
+    capturedAddress = true;
     addressByte = byte;
-    systemIdle = 0;
+    systemIdle = false;
     return;
   }
 
   // 3RD BYTE (velocity/value)
-  capturedAddress = 0;
+  capturedAddress = false;
   valueByte = byte;
-  systemIdle = 0;
+  systemIdle = false;
 
   switch ((statusByte >> 4) & 0x0F) {
   case MIDI_STATUS_PB:

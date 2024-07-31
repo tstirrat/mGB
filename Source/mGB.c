@@ -73,7 +73,7 @@ void main(void) {
 inline void gameMain(void) {
   rSC = SIOF_XFER_START | SIOF_CLOCK_EXT;
   while (1) {
-    systemIdle = 1;
+    systemIdle = true;
 
     updateMidiBuffer();
 

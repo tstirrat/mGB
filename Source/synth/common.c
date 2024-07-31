@@ -41,7 +41,7 @@ uint8_t outputSwitchValue[4] = {3, 3, 3, 3};
 void setPitchBendFrequencyOffset(uint8_t synth) {
   uint16_t freqRange;
   uint16_t f = freq[noteStatus[synth].note];
-  systemIdle = 0;
+  systemIdle = false;
   if (pbWheelIn[synth] & PBWHEEL_CENTER) {
     freqRange = freq[pbNoteRange[synth].high];
     currentFreq = (uint16_t)(pbWheelIn[synth] - 0x7F);

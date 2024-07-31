@@ -166,7 +166,7 @@ void playNoteWav(void) {
   pbNoteRange[WAV].high = noteIndex + pbRange[WAV];
 
   noteStatus[WAV].active = true;
-  cueWavSweep = 1;
+  cueWavSweep = true;
   wavNoteOffTrigger = false;
 }
 
@@ -179,7 +179,7 @@ void updateWavSweep(void) {
         wavCurrentFreq = currentFreqData[WAV] - (counterWav << wavSweepSpeed);
         if (!(wavSweepSpeed >> 3U) && (wavCurrentFreq > 0x898U)) {
           wavCurrentFreq = 0U;
-          cueWavSweep = 0U;
+          cueWavSweep = false;
         }
         rAUD3HIGH = wavCurrentFreq >> 8U;
         rAUD3LOW = wavCurrentFreq;
@@ -211,5 +211,5 @@ void loadWav(uint8_t offset) {
   rAUD3LOW = wavCurrentFreq;
   rAUD3HIGH = (wavCurrentFreq >> 8U) | AUDHIGH_RESTART;
 
-  systemIdle = 0;
+  systemIdle = false;
 }

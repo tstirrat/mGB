@@ -16,7 +16,7 @@ void serial_isr(void) CRITICAL INTERRUPT {
   // the interrupt can happen over a vblank, and if so, no rendering should
   // happen otherwise we will get unsafe VRAM access.
   // also this prioritises updateMidiBuffer()
-  systemIdle = 0;
+  systemIdle = false;
 }
 
 ISR_VECTOR(VECTOR_SERIAL, serial_isr)

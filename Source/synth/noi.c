@@ -51,7 +51,7 @@ void playNoteNoi(void) {
   if (valueByte == 0) {
     // Note off
     if (noteStatus[NOI].note == noteIndex) {
-      noteStatus[NOI].active = 0;
+      noteStatus[NOI].active = false;
 
       if (!noiSus) {
         rAUD4ENV = 0x00;
@@ -85,7 +85,7 @@ void playNoteNoi(void) {
 }
 
 void setPitchBendFrequencyOffsetNoise(void) {
-  systemIdle = 0;
+  systemIdle = false;
   if (pbWheelIn[NOI] & PBWHEEL_CENTER) {
     // noteStatus[NOI].note = noteStatus[NOI].note;
     currentFreq = noiFreq[noteStatus[NOI].note +

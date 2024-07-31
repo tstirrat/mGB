@@ -3,7 +3,10 @@
 #include <gbdk/platform.h>
 #include <stdbool.h>
 
-extern bool recallMode;
+typedef enum RecallMode {
+  RECALL_SAVE = 0,
+  RECALL_LOAD = 1,
+} RecallMode;
 
 // v 1.3.3
 extern const uint8_t versionnumber[10];
@@ -54,7 +57,7 @@ void updateDisplay(void);
 void updateDisplaySynth(void);
 void showCursor(void);
 void setPlayMarker(void);
-void snapRecall(void);
+void snapRecall(RecallMode mode);
 void updateSynth(uint8_t synth);
 void showMainScreen(void);
 void renderMainScreen(void);
