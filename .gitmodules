@@ -1,0 +1,3 @@
+[submodule "tests/gbdk_unit_test"]
+	path = tests/gbdk_unit_test
+	url = git@github.com:untoxa/gbdk_unit_test.git

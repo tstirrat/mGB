@@ -66,6 +66,16 @@
       },
       "dependsOn": "make-debug",
       "problemMatcher": []
+    },
+    {
+      "label": "make-test-roms",
+      "type": "shell",
+      "command": "make",
+      "args": [],
+      "options": {
+        "cwd": "tests/"
+      },
+      "problemMatcher": []
     }
   ]
 }

@@ -1,0 +1,83 @@
+name: test
+
+on: [push]
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    # container:
+    #   image: scottyhardy/docker-wine:latest
+    #   env:
+    #     # USER_NAME: runner
+    #     # USER_UID: ${USER_UID:-1010}
+    #     # USER_GID: ${USER_GID:-"${USER_UID}"}
+    #     # USER_HOME: ${USER_HOME:-/home/"${USER_NAME}"}
+    #     # USER_PASSWD: ${USER_PASSWD:-"$(openssl passwd -1 -salt "$(openssl rand -base64 6)" "${USER_NAME}")"}
+    #     # USER_SUDO: ${USER_SUDO:-yes}
+    #     RDP_SERVER: yes
+    #     # RUN_AS_ROOT: ${RUN_AS_ROOT:-no}
+    #     # FORCED_OWNERSHIP: ${FORCED_OWNERSHIP:-no}
+    #     # TZ: ${TZ:-UTC}
+    #     # USE_XVFB: ${USE_XVFB:-no}
+    #     DUMMY_PULSEAUDIO: yes # ${DUMMY_PULSEAUDIO:-no}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: robinraju/release-downloader@v1
+        with:
+          repository: "gbdk-2020/gbdk-2020"
+          tag: "4.3.0"
+          fileName: "gbdk-linux64.tar.gz"
+          extract: true
+      - uses: pyvista/setup-headless-display-action@v2
+      - name: Install wine
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo mkdir -pm755 /etc/apt/keyrings
+          sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
+          sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources
+          sudo apt update
+          sudo apt install -y --install-recommends winehq-stable winbind
+          wine --version
+      - name: Install wine-mono
+        run: |
+          wget https://github.com/madewokherd/wine-mono/releases/download/wine-mono-9.0.0/wine-mono-9.0.0-x86.msi
+          WINEDEBUG=fixme-all WINEDLLOVERRIDES=mscoree=d wine wine-mono-9.0.0-x86.msi
+      - name: pip install
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+        working-directory: ./tests
+      - name: make roms
+        shell: bash
+        run: |
+          make
+          ls build
+        working-directory: ./tests
+      - name: test single rom (python)
+        shell: bash
+        run: |
+          python test.py
+        working-directory: ./tests
+        continue-on-error: true
+      - run: |
+          ls -alF
+        shell: bash
+        working-directory: ./tests/build
+      - name: test single rom (bash)
+        run: |
+          wine ../bgb/bgb.exe -autoexit -hf -stateonexit -screenonexit build/wav_test_load_and_play.bmp -rom build/wav_test_load_and_play.gb
+        working-directory: ./tests
+      - run: |
+          ls -alF
+        shell: bash
+        working-directory: ./tests/build
+      #   run: |
+      #     pytest -v -s
+      #   working-directory: ./tests
