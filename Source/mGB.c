@@ -42,7 +42,7 @@ void main(void) {
 
   CRITICAL {
     cpu_fast();
-    checkMemory();
+    initMemory();
     displaySetup();
     initMainScreen();
     setSoundDefaults();

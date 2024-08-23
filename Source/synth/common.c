@@ -139,6 +139,7 @@ void updateSynths(void) {
     updateVibratoPosition(NOI);
 
   updateWavSweep();
+  updateWavSysex();
 }
 
 inline void setOutputSwitch(void) {

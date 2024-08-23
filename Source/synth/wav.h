@@ -15,6 +15,8 @@
 // The WAV oscilator is 1 octave higher
 #define WAV_OCTAVE_OFFSET 12U
 
+#define WAVEFORM_LENGTH 16
+
 extern uint16_t wavCurrentFreq;
 
 extern int8_t wavOct;
@@ -34,10 +36,12 @@ extern bool cueWavSweep;
 extern uint8_t wavStepCounter;
 extern uint8_t counterWavStart;
 
-// initial waveforms
-extern const uint8_t wavData[256];
+// waveforms
+extern uint8_t wavData[256];
 
 void updateWav(void);
+void storeWav(uint8_t index, uint8_t *source[WAVEFORM_LENGTH]);
 void loadWav(uint8_t offset);
 void playNoteWav(void);
 void updateWavSweep(void);
+void updateWavSysex(void);

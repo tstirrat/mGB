@@ -9,7 +9,7 @@
 #include "../synth/wav.h"
 #include "screen.h"
 
-static const uint8_t VERSION_NUMBER[] = "v.1.4.0ts";
+static const uint8_t VERSION_NUMBER[] = "v.1.4.1 sysex";
 
 static const uint8_t HELP_DATA[10][18] = {
     "octave           ",
