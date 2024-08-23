@@ -3,8 +3,7 @@
 
   .globl _addressByte
   .globl _dataSet
-  .globl _noiEnv
-  .globl _noiSus
+  .globl _noiState
   .globl _parameterLock
   .globl _pbRange
   .globl _pbWheelIn
@@ -912,7 +911,7 @@ _asmNoiEnv$::
 	RRCA
 	AND #0x0F
 
-	ld	hl,#_noiEnv
+	ld	hl,#_noiState + 0 ; noiState.envelope
 	ld	(hl),A
 
 	ld	de,#_dataSet + 21
@@ -1021,14 +1020,14 @@ _asmNoiSusOn$::
 	ld	A,#0x01
 	ld	de,#_dataSet + 22
     ld	(de),A
-	ld	hl,#_noiSus
+	ld	hl,#_noiState + 1 ; noiState.sus
     ld	(hl),A
 ret
 _asmNoiSusOff$::
 	ld	A,#0x00
 	ld	de,#_dataSet + 22
     ld	(de),A
-	ld	hl,#_noiSus
+	ld	hl,#_noiState + 1 ; noiState.sus
     ld	(hl),A
 
 	ld	hl,#_noteStatus + 15
@@ -1045,7 +1044,7 @@ ret
 _asmNoiNf$::
 	ld	A,#0x00
 	ld (#0xFF21),A
-	ld	hl,#_noiSus
+	ld	hl,#_noiState + 1 ; noiState.sus
     ld	(hl),A
 	ld	de,#_dataSet + 22
     ld	(de),A

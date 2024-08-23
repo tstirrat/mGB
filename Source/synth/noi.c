@@ -11,12 +11,7 @@ uint8_t noiFreq[72] = {
     0x6C, 0x5F, 0x5E, 0x5D, 0x5C, 0x4F, 0x4E, 0x4D, 0x4C, 0x3F, 0x3E, 0x3D,
     0x3C, 0x2F, 0x2E, 0x2D, 0x2C, 0x1F, 0x1E, 0x1D, 0x1C, 0x0F, 0x0E, 0x08};
 
-uint8_t noiEnv;
-uint8_t noiMode;
-bool noiSus;
-
-bool noiNoteOffTrigger;
-int8_t noiOct;
+synth_state noiState;
 
 void updateNoi(void) {
   if (pbWheelIn[NOI] != PBWHEEL_CENTER) {
@@ -46,14 +41,18 @@ void updateNoi(void) {
 }
 
 void playNoteNoi(void) {
-  uint8_t noteIndex = addressByte - 24U + noiOct;
+  uint8_t noteIndex = addressByte - 24U + noiState.octave;
+
+  if (noteIndex >= MAX_NOI_FREQ) {
+    return;
+  }
 
   if (valueByte == 0) {
     // Note off
     if (noteStatus[NOI].note == noteIndex) {
       noteStatus[NOI].active = false;
 
-      if (!noiSus) {
+      if (!noiState.sus) {
         rAUD4ENV = 0x00;
       }
     }
@@ -64,7 +63,7 @@ void playNoteNoi(void) {
   noteStatus[NOI].note = noteIndex;
 
   // Set envelope
-  uint8_t envelope = ((valueByte << 1) & 0xF0) | noiEnv;
+  uint8_t envelope = ((valueByte << 1) & 0xF0) | noiState.envelope;
   rAUD4ENV = envelope;
 
   // Set frequency

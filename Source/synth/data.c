@@ -116,14 +116,14 @@ void updateValueSynth(Parameter p) {
     setOutputPanBySynth(2, dataSet[p]);
     break;
   case NOI_Transpose:
-    noiOct = dataSet[p];
-    noiOct = (noiOct - 2U) * 12U;
+    noiState.octave = dataSet[p];
+    noiState.octave = (noiState.octave - 2U) * 12U;
     break;
   case NOI_Env:
-    noiEnv = dataSet[p];
+    noiState.envelope = dataSet[p];
     break;
   case NOI_Sustain:
-    noiSus = dataSet[p];
+    noiState.sus = dataSet[p];
     if (!dataSet[p] && !noteStatus[NOI].active)
       rAUD4ENV = 0U;
     break;
