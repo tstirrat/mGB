@@ -1,6 +1,7 @@
 #include "midi.h"
 #include "../mGB.h"
 #include "midi_asm.h"
+#include "midi_sysex.h"
 #include "serial.h"
 
 uint8_t statusByte;
@@ -17,8 +18,17 @@ void updateMidiBuffer(void) {
 
   uint8_t byte = serialBuffer[serialBufferReadPosition];
 
+  if (sysexBytesCount) {
+    captureSysexByte(byte);
+    return;
+  }
+
   // STATUS BYTE
   if (byte & MIDI_STATUS_BIT) {
+    if (byte == MIDI_STATUS_SYSEX) {
+      sysexBytesCount = 1;
+      return;
+    }
     if ((byte & MIDI_STATUS_SYSTEM) == MIDI_STATUS_SYSTEM) {
       return;
     }
