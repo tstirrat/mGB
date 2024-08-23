@@ -1,20 +1,12 @@
 #pragma once
 
+#include "common.h"
 #include <gbdk/platform.h>
 #include <stdbool.h>
 
-typedef struct pulse_state {
-  uint8_t envelope;
-  bool sus;
-  uint8_t retrig;
-  uint8_t velocity;
-  bool noteOffTrigger;
-  int8_t octave;
-} pulse_state;
+extern synth_state pu1State;
 
-extern pulse_state pu1State;
-
-extern pulse_state pu2State;
+extern synth_state pu2State;
 
 void updatePu1(void);
 void playNotePu1(void);

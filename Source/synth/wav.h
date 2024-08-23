@@ -12,8 +12,8 @@
 // The mask which represents the Chan 3 output level
 #define AUD3LEVEL_MASK 0b01100000
 
-// The WAV oscilator is 2 octaves higher
-#define WAV_OCTAVE_OFFSET 24U
+// The WAV oscilator is 1 octave higher
+#define WAV_OCTAVE_OFFSET 12U
 
 extern uint16_t wavCurrentFreq;
 

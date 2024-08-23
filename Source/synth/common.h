@@ -10,12 +10,22 @@
 
 #define PBWHEEL_CENTER 0x80
 
-extern const uint16_t freq[72];
+#define MAX_FREQ 128U
+
+extern const uint16_t freq[128];
 
 typedef struct note_status_t {
   bool active;
   uint8_t note;
 } note_status_t;
+
+typedef struct synth_state {
+  volatile uint8_t envelope;
+  volatile bool sus;
+  uint8_t velocity;
+  bool noteOffTrigger;
+  int8_t octave;
+} synth_state;
 
 extern note_status_t noteStatus[4];
 

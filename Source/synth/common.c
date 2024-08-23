@@ -4,13 +4,29 @@
 #include "pulse.h"
 #include "wav.h"
 
-const uint16_t freq[72] = {
+// The pulse channels’ period dividers are clocked at 1048576 Hz, once per four
+// dots, and their waveform is 8 samples long. This makes their sample rate
+// equal to `1048576 / (2048 - period_value)` Hz.
+//
+// with a resulting tone frequency equal to `131072 / (2048 - period_value)` Hz.
+
+// MIDI note to channel's "period value" lookup.
+//
+// 0 = Notes too low or high to fit in 2048 sample window and would produce an
+// incorrect note freq
+const uint16_t freq[128] = {
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+
     44,   156,  262,  363,  457,  547,  631,  710,  786,  854,  923,  986,
     1046, 1102, 1155, 1205, 1253, 1297, 1339, 1379, 1417, 1452, 1486, 1517,
     1546, 1575, 1602, 1627, 1650, 1673, 1694, 1714, 1732, 1750, 1767, 1783,
     1798, 1812, 1825, 1837, 1849, 1860, 1871, 1881, 1890, 1899, 1907, 1915,
     1923, 1930, 1936, 1943, 1949, 1954, 1959, 1964, 1969, 1974, 1978, 1982,
-    1985, 1988, 1992, 1995, 1998, 2001, 2004, 2006, 2009, 2011, 2013, 2015};
+    1985, 1988, 1992, 1995, 1998, 2001, 2004, 2006, 2009, 2011, 2013, 2015,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0};
 
 note_status_t noteStatus[4];
 

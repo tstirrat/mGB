@@ -120,10 +120,14 @@ void updateWav(void) {
 // now: 922/907 clock cycles, 205 bytes
 // = +80 cycles, 9.5% worse
 void playNoteWav(void) {
-  const uint8_t noteIndex = addressByte - WAV_OCTAVE_OFFSET + wavOct;
+  const uint8_t noteIndex = addressByte + WAV_OCTAVE_OFFSET + wavOct;
 
+  if (noteIndex >= MAX_FREQ) {
+    return;
+  }
+
+  // Note off
   if (!valueByte) {
-    // Note off
     if (noteStatus[WAV].note == noteIndex) {
       noteStatus[WAV].active = false;
 
@@ -131,6 +135,12 @@ void playNoteWav(void) {
         wavNoteOffTrigger = true;
       }
     }
+    return;
+  }
+
+  currentFreqData[WAV] = wavCurrentFreq = freq[noteIndex];
+
+  if (wavCurrentFreq == 0) {
     return;
   }
 
@@ -146,8 +156,6 @@ void playNoteWav(void) {
   } else {
     rAUD3LEVEL = AUD3LEVEL_25;
   }
-
-  currentFreqData[WAV] = wavCurrentFreq = freq[noteIndex];
 
   // rAUD3HIGH = 0x00; // was in ASM, probably not needed?
 

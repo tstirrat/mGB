@@ -2,11 +2,11 @@
 #include "../io/midi.h"
 #include "common.h"
 
-pulse_state pu1State = {.retrig = AUDHIGH_RESTART};
+synth_state pu1State;
 
-pulse_state pu2State = {.retrig = AUDHIGH_RESTART};
+synth_state pu2State;
 
-inline void updatePulse(uint8_t synth, pulse_state *state, uint8_t *rLOW,
+inline void updatePulse(uint8_t synth, synth_state *state, uint8_t *rLOW,
                         uint8_t *rHIGH, uint8_t *rENV) {
   if (state->noteOffTrigger) {
     *rENV = 0x00;
@@ -36,12 +36,16 @@ inline void updatePulse(uint8_t synth, pulse_state *state, uint8_t *rLOW,
   }
 }
 
-inline void playNotePulse(uint8_t synth, pulse_state *state, uint8_t *rLOW,
+inline void playNotePulse(uint8_t synth, synth_state *state, uint8_t *rLOW,
                           uint8_t *rHIGH, uint8_t *rENV) {
-  const uint8_t noteIndex = addressByte - 0x24 + state->octave;
+  const uint8_t noteIndex = addressByte + state->octave;
 
+  if (noteIndex >= MAX_FREQ) {
+    return;
+  }
+
+  // Note off
   if (!valueByte) {
-    // Note off
     if (noteStatus[synth].note == noteIndex) {
       noteStatus[synth].active = false;
 
@@ -61,9 +65,13 @@ inline void playNotePulse(uint8_t synth, pulse_state *state, uint8_t *rLOW,
     *rENV = ((valueByte << 1) & 0xF0) | state->envelope;
   }
 
-  noteStatus[synth].note = noteIndex;
-
   const uint16_t f = currentFreqData[synth] = freq[noteIndex];
+
+  if (f == 0) {
+    return;
+  }
+
+  noteStatus[synth].note = noteIndex;
 
   *rLOW = f;
   *rHIGH = (f >> 8U) | retrig;
