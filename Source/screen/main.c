@@ -9,27 +9,27 @@
 #include "../synth/wav.h"
 #include "screen.h"
 
-// v 1.3.3
-const uint8_t versionnumber[10] = {32, 81, 2, 81, 4, 81, 4, 0, 0, 0};
+static const uint8_t VERSION_NUMBER[10] = "v.1.3.3  ";
 
-// TODO: can these be represented more clearly as text strings?
-const uint8_t helpdata[10][18] = {
-    {25, 13, 30, 11, 32, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {33, 11, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 13, 1, 2},
-    {15, 24, 32, 15, 22, 25, 26, 15, 0, 0, 0, 0, 0, 0, 13, 13, 1, 3},
-    {29, 33, 15, 15, 26, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 13, 1, 4},
-    {26, 12, 0, 28, 11, 24, 17, 15, 0, 0, 0, 0, 0, 0, 13, 13, 1, 5},
-    {29, 31, 29, 30, 11, 19, 24, 0, 0, 0, 0, 0, 0, 0, 13, 13, 7, 5},
-    {26, 11, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 13, 2, 1},
-    {26, 28, 15, 29, 15, 30, 0, 0, 0, 0, 0, 0, 0, 0, 13, 13, 1, 6},
-    {33, 11, 32, 0, 25, 16, 16, 29, 15, 30, 0, 0, 0, 0, 13, 13, 1, 3},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+static const uint8_t HELP_DATA[10][18] = {
+    "octave           ",
+    "wav          cc01",
+    "envelope     cc02",
+    "sweep        cc03",
+    "pb range     cc04",
+    "sustain      cc64",
+    "pan          cc10",
+    "preset       cc05",
+    "wav offset   cc02",
+    //
+    "                 ",
 };
 
-const uint8_t helpmap[4][9] = {{0, 1, 2, 3, 4, 5, 6, 9, 7},
-                               {0, 1, 2, 9, 4, 5, 6, 9, 7},
-                               {0, 1, 8, 3, 4, 5, 6, 9, 7},
-                               {0, 9, 2, 9, 9, 5, 6, 9, 7}};
+// Lookup from cursor position to HELP_DATA
+static const uint8_t HELP_MAP[4][9] = {{0, 1, 2, 3, 4, 5, 6, 9, 7},
+                                       {0, 1, 2, 9, 4, 5, 6, 9, 7},
+                                       {0, 1, 8, 3, 4, 5, 6, 9, 7},
+                                       {0, 9, 2, 9, 9, 5, 6, 9, 7}};
 
 const uint8_t SCREEN_XO = 8;
 const uint8_t SCREEN_YO = 16;
@@ -138,11 +138,14 @@ void renderMainScreen(void) {
   setPlayMarker();
 }
 
-void printversion(void) { set_bkg_tiles(1, 16, 10, 1, versionnumber); }
+void printVersion(void) {
+  //
+  printString(1, 16, sizeof(VERSION_NUMBER), VERSION_NUMBER);
+}
 
-void printhelp(void) {
-  j = helpmap[cursorColumn][cursorRowMain];
-  set_bkg_tiles(1, 16, 18, 1, helpdata[j]);
+void printHelp(void) {
+  j = HELP_MAP[cursorColumn][cursorRowMain];
+  printString(1, 16, sizeof(HELP_DATA[j]), HELP_DATA[j]);
 }
 
 void updateDisplayValue(Parameter p, uint8_t v) {
@@ -292,7 +295,7 @@ void setCursor(void) {
       move_sprite(j + SPRITE_ARRL_START, 0, 0);
     }
   }
-  printhelp();
+  printHelp();
 }
 
 void showCursor(void) { setCursor(); }

@@ -8,14 +8,6 @@ typedef enum RecallMode {
   RECALL_LOAD = 1,
 } RecallMode;
 
-// v 1.3.3
-extern const uint8_t versionnumber[10];
-
-// TODO: can these be represented more clearly as text strings?
-extern const uint8_t helpdata[10][18];
-
-extern const uint8_t helpmap[4][9];
-
 extern const uint8_t SCREEN_XO;
 extern const uint8_t SCREEN_YO;
 extern const uint8_t SCREEN_XSPACE;
@@ -61,7 +53,7 @@ void snapRecall(RecallMode mode);
 void updateSynth(uint8_t synth);
 void showMainScreen(void);
 void renderMainScreen(void);
-void printversion(void);
+void printVersion(void);
 void toggleScreen(void);
 void clearParameterLocks(void);
 

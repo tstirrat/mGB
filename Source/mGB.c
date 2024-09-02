@@ -65,7 +65,7 @@ void main(void) {
   delay(2000);
 
   showScreen(SCREEN_MAIN);
-  printversion();
+  printVersion();
   // testSynths();
   gameMain();
 }

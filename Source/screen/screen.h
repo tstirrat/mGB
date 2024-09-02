@@ -21,14 +21,9 @@ typedef enum Screen {
 
 extern Screen currentScreen;
 
-// TODO: generate from png
 extern const uint8_t data_barrow[16];
 
-// TODO: generate from png
 extern const uint8_t data_larrow[16];
-
-// TODO: generate from png
-extern const uint8_t data_font[1472];
 
 extern const uint16_t bgpalette[4];
 extern const uint16_t spritepalette[8];
@@ -39,3 +34,6 @@ void displaySetup(void);
 void toggleScreen(void);
 void renderCurrentScreen(void);
 void showScreen(Screen screen);
+
+// Print a string at x, y using the bg tile font
+void printString(uint8_t x, uint8_t y, uint8_t len, uint8_t chars[]);
