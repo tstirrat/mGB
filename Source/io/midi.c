@@ -46,6 +46,10 @@ void updateMidiBuffer(void) {
     asmEventMidiPB();
     break;
   case MIDI_STATUS_CC:
+    // ignore WAV channel CC02
+    if (statusByte == 0xB2 && addressByte == 0x02) {
+      break;
+    }
     asmEventMidiCC();
     break;
   case MIDI_STATUS_NOTE_ON:
