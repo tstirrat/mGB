@@ -151,20 +151,20 @@ void playNoteWav(void) {
   // Note on
   noteStatus[WAV].note = noteIndex;
 
-  // channel volume louder = smaller value:
-  const uint8_t noteVelocity = valueByte & AUD3LEVEL_MASK;
-  if (noteVelocity == 0x60) {
-    rAUD3LEVEL = AUD3LEVEL_100;
-  } else if (noteVelocity == 0x40) {
-    rAUD3LEVEL = AUD3LEVEL_50;
-  } else {
-    rAUD3LEVEL = AUD3LEVEL_25;
-  }
-
-  // rAUD3HIGH = 0x00; // was in ASM, probably not needed?
+  rAUD3HIGH = AUDHIGH_RESTART; // retrigger
 
   rAUD3LOW = wavCurrentFreq;
   rAUD3HIGH = wavCurrentFreq >> 8U;
+
+  // channel volume louder = smaller value:
+  // const uint8_t noteVelocity = valueByte & AUD3LEVEL_MASK;
+  // if (noteVelocity == 0x60) {
+  rAUD3LEVEL = AUD3LEVEL_100; // fixed max vol
+  // } else if (noteVelocity == 0x40) {
+  //   rAUD3LEVEL = AUD3LEVEL_50;
+  // } else {
+  //   rAUD3LEVEL = AUD3LEVEL_25;
+  // }
 
   // Reset various counters and flags
   vibratoPosition[WAV] = 0;
