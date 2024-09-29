@@ -4,7 +4,7 @@
     {
       "label": "make-debug",
       "type": "shell",
-      "command": "make clean && make DEBUG=1",
+      "command": "make DEBUG=1",
       "options": {
         "cwd": "Source/"
       },
@@ -13,7 +13,7 @@
     {
       "label": "make",
       "type": "shell",
-      "command": "make clean && make",
+      "command": "make",
       "options": {
         "cwd": "Source/"
       },
@@ -22,7 +22,7 @@
     {
       "label": "make-release",
       "type": "shell",
-      "command": "make clean && make RELEASE=1",
+      "command": "make RELEASE=1",
       "options": {
         "cwd": "Source/"
       },
