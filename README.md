@@ -11,7 +11,7 @@ mGB is a Gameboy cartridge program (You need a Flash Cart and Transfer hardware)
 Changes:
 
 - The code has been updated to be closer to idiomatic GBDK-2020
-- Converted much of the assembler back into C code for
+- Converted much of the assembler back into C code to invite more features and bug fixes
 
 ## Building mGB
 
