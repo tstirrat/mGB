@@ -54,34 +54,34 @@ make clean     # clean up the build directories
   - Added 8 "noise" shapes to the Wav synth for more interesting effects.
   - Made Wav pitch sweep stable and changed it so it glitches out at values above 8. :D
 - Nov 5 2008 Version: 1.2.4
-- Fixed small bug with the indicator arrow, it was offset vertically a bit.
-- Fixed bug with unexpected behavior with large PB Ranges
-- PB Range Max is now 48 notes. (hehe)
-- Octave Shift max is now -2/+3
-- Added some Octave shift logic. If the current note is greater than what the GB can play due to octave shifting, it will select the lower octave note, so no off key notes will play.
-- Added Gameboy Color fast-cpu mode- better performance with newer Gameboys.
+  - Fixed small bug with the indicator arrow, it was offset vertically a bit.
+  - Fixed bug with unexpected behavior with large PB Ranges
+  - PB Range Max is now 48 notes. (hehe)
+  - Octave Shift max is now -2/+3
+  - Added some Octave shift logic. If the current note is greater than what the GB can play due to octave shifting, it will select the lower octave note, so no off key notes will play.
+  - Added Gameboy Color fast-cpu mode- better performance with newer Gameboys.
 - Oct 28 2008 - Version: 1.2.3
-- Added Note markers above synth number, so you can tell if the synth is on. ;)
-- Added PB wheel reset to MIDI panic (Start button)
-- Code more efficient (I'm sure there is still more to do here)
-- nitro2k01 @ http://gameboygenius.8bitcollective.com rewrote my gamejack serial function to make it as fast as possible. THANKS!!
+  - Added Note markers above synth number, so you can tell if the synth is on. ;)
+  - Added PB wheel reset to MIDI panic (Start button)
+  - Code more efficient (I'm sure there is still more to do here)
+  - nitro2k01 @ http://gameboygenius.8bitcollective.com rewrote my gamejack serial function to make it as fast as possible. THANKS!!
 - Oct 25 2008 - Version: 1.2.2
-- Added Program Change messages to mGB
-- Rewrote MIDI data input for mGB. (Rewrote the function in ASM to make it faster)
-- Added Controller Priority. While changing parameters on the gameboy itself, MIDI messages will not overwrite your changes while your editing them. This is a good live mode feature
+  - Added Program Change messages to mGB
+  - Rewrote MIDI data input for mGB. (Rewrote the function in ASM to make it faster)
+  - Added Controller Priority. While changing parameters on the gameboy itself, MIDI messages will not overwrite your changes while your editing them. This is a good live mode feature
 - Oct 23 2008 - Version: 1.2.1
-- Found & Fixed various bugs in 1.2.0
-- Changed help text. Made it more clear.
+  - Found & Fixed various bugs in 1.2.0
+  - Changed help text. Made it more clear.
 - Oct 23 2008 - Version: 1.2.0
-- Change interface a bit
-- Added presets
-- Optimized code
+  - Change interface a bit
+  - Added presets
+  - Optimized code
 - Oct 20 2008 - Version: 1.1.0
-- Added Interface
-- Changed Wav CCs Around to make more consistent with the Pu Synths.
+  - Added Interface
+  - Changed Wav CCs Around to make more consistent with the Pu Synths.
 - Oct 4 2008 - Version: 0.1.2
-- Fixed bug with Wav Synth hanging after sequencer stop.
-- Fixed bug with Wav Synth not resetting monophonic keyboard note triggers
+  - Fixed bug with Wav Synth hanging after sequencer stop.
+  - Fixed bug with Wav Synth not resetting monophonic keyboard note triggers
 
 ## Button Shortcuts
 
