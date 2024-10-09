@@ -1,4 +1,4 @@
-# mGB (ts mod)
+# mGB (ts mod*)
 
 mGB is a Gameboy cartridge program (You need a Flash Cart and Transfer hardware) That enables the Gameboy to act as a full MIDI supported sound module. It works with the old DMG Gameboy as well as GBC/GBA.
 
@@ -6,7 +6,7 @@ mGB is a Gameboy cartridge program (You need a Flash Cart and Transfer hardware)
 
 ![ScreenShot](http://trash80.net/arduinoboy/mGB1_2_0.png)
 
-## NOTE: This is an unofficial fork of the original mGB
+## *NOTE: This is an unofficial fork of the original mGB
 
 Changes:
 
