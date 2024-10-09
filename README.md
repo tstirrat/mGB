@@ -5,6 +5,8 @@ mGB is a Gameboy cartridge program (You need a Flash Cart and Transfer hardware)
 
 ![ScreenShot](http://trash80.net/arduinoboy/mGB1_2_0.png)
 
+### This is an unofficial fork of the original mGB
+
 ## Building mGB
 
 Follow the [GBDK-2020 instructions](https://github.com/gbdk-2020/gbdk-2020/tree/develop?tab=readme-ov-file#usage) and unzip v4.3.0+ into the `gbdk/` folder. Then run make:
@@ -19,9 +21,14 @@ make clean     # clean up the build directories
 ```
 
 ## Change Log
- * 07/05/24
+ * 08/23/24 1.4.0-ts
+   * Fixed some synth frequencies playing incorrect notes (now it will be silent for notes that are too high or low to play on the synth)
+   * Fixed other various invalid memory accesses
+ * 07/16/24
    * Project updated to build with [GBDK-2020](https://github.com/gbdk-2020/gbdk-2020) v4.3.0
- * 06/26/15 
+   * Fixed cartridge type, missing name in rom header, and CGB flag
+ * *^^07/16/24 - UNOFFICIAL FORK^^*
+ * 06/26/15
    * Project has been moved to GitHub along with sourcecode.
  * 12/21/12 1.3.3
    * Fixed a bug with the new pitchbend resolution
@@ -29,21 +36,21 @@ make clean     # clean up the build directories
  * 12/20/12 1.3.2
    * Increased pitchbend resolution
  * 12/19/12 1.3.1
-   * Fixed PU1 Envelope retrigger bug. 
+   * Fixed PU1 Envelope retrigger bug.
  * Feb 2 2009 1.3.0
    * Rewrote 90% of code into assembly for much faster performance- especially noticeable on DMG.
-   * Changed note behavior. Removed Monophonic note memory to increase performance. 
-   * Envelope does not retrigger if the notes overlap and have the same velocity- Good for arpeggios / broken chords. 
-   * Note off has a slight delay so immediate retrigged notes don't cause "clicking" effect due to turning off the synth. 
+   * Changed note behavior. Removed Monophonic note memory to increase performance.
+   * Envelope does not retrigger if the notes overlap and have the same velocity- Good for arpeggios / broken chords.
+   * Note off has a slight delay so immediate retrigged notes don't cause "clicking" effect due to turning off the synth.
    * Added screen off mode for great signal-to-noise ratio, longer battery life, and better performance on DMG. (To toggle the screen mode hold Select and press A.)
-   * Created back-end routine that prioritizes processes for better performance. 
+   * Created back-end routine that prioritizes processes for better performance.
    * Added 8 "noise" shapes to the Wav synth for more interesting effects.
    * Made Wav pitch sweep stable and changed it so it glitches out at values above 8. :D
  * Nov 5 2008 Version: 1.2.4
   * Fixed small bug with the indicator arrow, it was offset vertically a bit.
   * Fixed bug with unexpected behavior with large PB Ranges
   * PB Range Max is now 48 notes. (hehe)
-  * Octave Shift max is now -2/+3 
+  * Octave Shift max is now -2/+3
   * Added some Octave shift logic. If the current note is greater than what the GB can play due to octave shifting, it will select the lower octave note, so no off key notes will play.
   * Added Gameboy Color fast-cpu mode- better performance with newer Gameboys.
  * Oct 28 2008 - Version: 1.2.3
@@ -54,9 +61,9 @@ make clean     # clean up the build directories
  * Oct 25 2008 - Version: 1.2.2
   * Added Program Change messages to mGB
   * Rewrote MIDI data input for mGB. (Rewrote the function in ASM to make it faster)
-  * Added Controller Priority. While changing parameters on the gameboy itself, MIDI messages will not overwrite your changes while your editing them. This is a good live mode feature 
+  * Added Controller Priority. While changing parameters on the gameboy itself, MIDI messages will not overwrite your changes while your editing them. This is a good live mode feature
  * Oct 23 2008 - Version: 1.2.1
-  * Found & Fixed various bugs in 1.2.0 
+  * Found & Fixed various bugs in 1.2.0
   * Changed help text. Made it more clear.
  * Oct 23 2008 - Version: 1.2.0
   * Change interface a bit
@@ -66,7 +73,7 @@ make clean     # clean up the build directories
   * Added Interface
   * Changed Wav CCs Around to make more consistent with the Pu Synths.
  * Oct 4 2008 - Version: 0.1.2
-  * Fixed bug with Wav Synth hanging after sequencer stop. 
+  * Fixed bug with Wav Synth hanging after sequencer stop.
   * Fixed bug with Wav Synth not resetting monophonic keyboard note triggers
 
 ## Button Shortcuts
@@ -75,7 +82,7 @@ make clean     # clean up the build directories
  * Select + A: Toggles the screen on or off, better battery life, less noise, and faster response.
  * Select + B: Copys all parameters on screen while cursor is not on preset number.
  * B: Pastes all parameters while cursor is not on preset number
- * A + Dpad: Change parameter value 
+ * A + Dpad: Change parameter value
  * To load/save presets, put the cursor on the "PRESET" number, and hit B for load, Select+B to save
 
 ## MIDI Implementation
