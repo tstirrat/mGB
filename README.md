@@ -1,11 +1,15 @@
-# mGB
+# mGB (ts mod)
 mGB is a Gameboy cartridge program (You need a Flash Cart and Transfer hardware) That enables the Gameboy to act as a full MIDI supported sound module. It works with the old DMG Gameboy as well as GBC/GBA.
 
 [More information about Arduinoboy](https://github.com/trash80/arduinoboy)
 
 ![ScreenShot](http://trash80.net/arduinoboy/mGB1_2_0.png)
 
-### This is an unofficial fork of the original mGB
+## NOTE: This is an unofficial fork of the original mGB
+
+Changes: 
+- The code has been updated to be closer to idiomatic GBDK-2020
+- Converted much of the assembler back into C code for
 
 ## Building mGB
 
@@ -21,7 +25,7 @@ make clean     # clean up the build directories
 ```
 
 ## Change Log
- * 08/23/24 1.4.0-ts
+ * 08/23/24 `v1.4.0-ts`
    * Fixed some synth frequencies playing incorrect notes (now it will be silent for notes that are too high or low to play on the synth)
    * Fixed other various invalid memory accesses
  * 07/16/24
