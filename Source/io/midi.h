@@ -1,6 +1,7 @@
 #pragma once
 
 #include <gbdk/platform.h>
+#include <stdbool.h>
 
 #define MIDI_STATUS_BIT 0x80
 #define MIDI_STATUS_NOTE_ON 0x09

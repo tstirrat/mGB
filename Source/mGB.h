@@ -1,5 +1,6 @@
 #pragma once
 
+// #include <gbdk/emu_debug.h>
 #include <gbdk/platform.h>
 #include <stdbool.h>
 

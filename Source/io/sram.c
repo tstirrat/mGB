@@ -2,7 +2,9 @@
 #include "../mGB.h"
 #include "../screen/main.h"
 #include "../synth/data.h"
+#include "../synth/wav.h"
 #include <gbdk/platform.h>
+#include <string.h>
 
 void saveDataSet(uint8_t synth) {
   // EMU_printf("saveDataSet(synth %d)\n", synth);
@@ -80,7 +82,46 @@ void loadDataSet(uint8_t synth) {
   DISABLE_RAM_MBC1;
 }
 
-void checkMemory(void) {
+// Init V1 SRAM data (`saveData`)
+static void initV1(void) {
+  for (x = 0; x != 128; x += 8) {
+    l = 0;
+    for (i = 0; i < 7; i++) {
+      saveData[(x + l)] = dataSet[i];
+      l++;
+    }
+    l = 0;
+    for (i = 7; i != 13; i++) {
+      saveData[(x + 128U + l)] = dataSet[i];
+      l++;
+    }
+    l = 0;
+    for (i = 13; i != 20; i++) {
+      saveData[(x + 256U + l)] = dataSet[i];
+      l++;
+    }
+    l = 0;
+    for (i = 20; i != 24; i++) {
+      saveData[(x + 384U + l)] = dataSet[i];
+      l++;
+    }
+  }
+  saveData[SRAM_SENTINEL_INDEX] = SRAM_INITIALIZED;
+  sram_version = 1;
+}
+
+// Init V2 SRAM data (`sram_wavData`)
+static void initV2(void) {
+  memcpy(&sram_wavData, &wavData, sizeof(sram_wavData));
+  sram_version = 2;
+}
+
+// load the SRAM `sram_wavData` data into the runtime `wavData`
+static void sramLoadAllWavData(void) {
+  memcpy(&wavData, &sram_wavData, sizeof(wavData));
+}
+
+void initMemory(void) {
   ENABLE_RAM_MBC1;
 
   // fixes some SRAM Bugs
@@ -88,33 +129,29 @@ void checkMemory(void) {
   SWITCH_RAM(0);
   // end fix
 
-  if (saveData[512] != SRAM_INITIALIZED) {
-    for (x = 0; x != 128; x += 8) {
-      l = 0;
-      for (i = 0; i < 7; i++) {
-        saveData[(x + l)] = dataSet[i];
-        l++;
-      }
-      l = 0;
-      for (i = 7; i != 13; i++) {
-        saveData[(x + 128U + l)] = dataSet[i];
-        l++;
-      }
-      l = 0;
-      for (i = 13; i != 20; i++) {
-        saveData[(x + 256U + l)] = dataSet[i];
-        l++;
-      }
-      l = 0;
-      for (i = 20; i != 24; i++) {
-        saveData[(x + 384U + l)] = dataSet[i];
-        l++;
-      }
-    }
-    saveData[512] = SRAM_INITIALIZED;
+  if (sram_version == 2) {
+    // do nothing
+  } else if (saveData[SRAM_SENTINEL_INDEX] == SRAM_INITIALIZED) {
+    // legacy SRAM format (== V1)
+    initV2();
+  } else {
+    // no SRAM initialized
+    saveData[SRAM_SENTINEL_INDEX] = SRAM_INITIALIZED;
+    initV1();
+    initV2();
   }
+
+  sramLoadAllWavData();
   DISABLE_RAM_MBC1;
 
   for (j = 0; j != 24; j++)
     dataSetSnap[j] = dataSet[j];
+}
+
+void sramStoreWaveform(uint8_t index) {
+  const uint8_t offset = index * WAVEFORM_LENGTH;
+
+  ENABLE_RAM_MBC1;
+  memcpy(&sram_wavData[offset], &wavData[offset], WAVEFORM_LENGTH);
+  DISABLE_RAM_MBC1;
 }
